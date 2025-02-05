@@ -6,28 +6,28 @@
 /*************************** SETUP *********************************/
 void setup() {
 
-  initSerial();
-  resetClock();
-  initLcd();
-  initLED();
-  initEncoder();
-  initTime();
-  initThermocouple();
-  initPwm();
-  initPID();
-  initLog();
+    initSerial();
+    resetClock();
+    initLcd();
+    initLED();
+    initEncoder();
+    initTime();
+    initThermocouple();
+    initPwm();
+    initPID();
+    initLog();
 }
 
 /*************************** MAIN **********************************/
 void loop() {
 
-  getTime();
-  measureTemp();
-  displayData();
-  updateLEDs();
-  updateButton();
-  recvSerial();
-  evaluateCommand();
-  updateHeater();
-  // logData();
+    getTime();
+    measureTemp();
+    displayData();
+    updateLEDs();
+    updateButton();
+    recvSerial();
+    evaluateCommand();
+    updateHeater();
+    // logData();
 }
