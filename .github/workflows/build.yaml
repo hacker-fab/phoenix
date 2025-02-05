@@ -1,4 +1,4 @@
-name: Build TubeFurnace
+name: Build Firmware
 
 on:
   push:
@@ -8,22 +8,19 @@ on:
 
 jobs:
   build-arduino:
-    name: Build on Arduino CLI
+    name: Build with Arduino CLI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      # 1) Check out the repository
       - uses: actions/checkout@v4
 
-      # 2) Install and configure Arduino CLI
       - name: Set up Arduino CLI
         uses: arduino/setup-arduino-cli@v2
         with:
           version: 0.32.2
 
-      # 3) Install external library dependencies (you may need to tweak exact names)
       - name: Install Library Dependencies
         run: |
           arduino-cli core install arduino:avr
@@ -32,7 +29,6 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C"
           arduino-cli lib install "RunningAverage"
 
-      # 4) Compile the TubeFurnace sketch
       - name: Build TubeFurnace
         run: |
           # Use the --libraries flag to include the local libraries folder
