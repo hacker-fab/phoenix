@@ -7,6 +7,29 @@ on:
     branches: ["main"]
 
 jobs:
+
+  lint:
+    name: Lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y clang-format
+          elif [ "${{ runner.os }}" = "macOS" ]; then
+            brew update
+            brew install clang-format
+          fi
+      - name: Lint
+        run: clang-format -Werror TubeFurnace/*.cpp TubeFurnace/*.h TubeFurnace/*.ino
+
   build-arduino:
     name: Arduino CLI
     runs-on: ${{ matrix.os }}
@@ -15,9 +38,6 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Lint
-        run: clang-format -Werror TubeFurnace/*.cpp TubeFurnace/*.h TubeFurnace/*.ino
 
       - name: Set up Arduino CLI
         uses: arduino/setup-arduino-cli@v2
