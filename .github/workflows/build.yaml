@@ -1,0 +1,38 @@
+name: Build Firmware
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-arduino:
+    name: Arduino CLI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+        with:
+          version: 0.32.2
+
+      - name: Install Library Dependencies
+        run: |
+          arduino-cli core install arduino:avr
+          arduino-cli lib update-index
+          arduino-cli lib install "Adafruit MAX31856 Library"
+          arduino-cli lib install "LiquidCrystal I2C"
+          arduino-cli lib install "RunningAverage"
+
+      - name: Build TubeFurnace
+        run: |
+          # Use the --libraries flag to include the local libraries folder
+          arduino-cli compile \
+            --fqbn arduino:avr:uno \
+            --libraries TubeFurnace/libraries \
+            TubeFurnace
