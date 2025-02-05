@@ -32,12 +32,6 @@ jobs:
           arduino-cli lib install "LiquidCrystal I2C"
           arduino-cli lib install "RunningAverage"
 
-      - name: ls
-        run: |
-          tree
-          ls
-          pwd
-
       # 4) Compile the TubeFurnace sketch
       - name: Build TubeFurnace
         run: |
