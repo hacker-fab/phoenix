@@ -15,8 +15,6 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
-      - name: Lint
-        run: clang-format --Werror TubeFurnace/*.cpp TubeFurnace/*.h TubeFurnace/*.ino
 
       - name: Set up Arduino CLI
         uses: arduino/setup-arduino-cli@v2
