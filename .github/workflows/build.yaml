@@ -43,4 +43,4 @@ jobs:
           arduino-cli compile \
             --fqbn arduino:avr:uno \
             --libraries TubeFurnace/libraries \
-            phoenix/TubeFurnace
+            TubeFurnace
