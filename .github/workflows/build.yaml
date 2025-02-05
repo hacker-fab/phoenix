@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-arduino:
-    name: Build with Arduino CLI
+    name: Arduino CLI
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
