@@ -17,5 +17,4 @@ arduino-cli compile \
     --fqbn arduino:avr:uno \
     --libraries TubeFurnace/libraries \
     TubeFurnace
-
 ```
