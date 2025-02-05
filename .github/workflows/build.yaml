@@ -9,7 +9,10 @@ on:
 jobs:
   build-arduino:
     name: Build on Arduino CLI
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       # 1) Check out the repository
       - uses: actions/checkout@v4
@@ -26,6 +29,12 @@ jobs:
           arduino-cli lib install "Adafruit MAX31856 Library"
           arduino-cli lib install "LiquidCrystal I2C"
           arduino-cli lib install "RunningAverage"
+
+      - name: ls
+        run: |
+          tree
+          ls
+          pwd
 
       # 4) Compile the TubeFurnace sketch
       - name: Build TubeFurnace
