@@ -1,0 +1,37 @@
+name: Build TubeFurnace
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-arduino:
+    name: Build on Arduino CLI
+    runs-on: ubuntu-latest
+    steps:
+      # 1) Check out the repository
+      - uses: actions/checkout@v4
+
+      # 2) Install and configure Arduino CLI
+      - name: Set up Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+        with:
+          version: 0.32.2
+
+      # 3) Install external library dependencies (you may need to tweak exact names)
+      - name: Install Library Dependencies
+        run: |
+          arduino-cli lib install "Adafruit MAX31856 Library"
+          arduino-cli lib install "LiquidCrystal I2C"
+          arduino-cli lib install "RunningAverage"
+
+      # 4) Compile the TubeFurnace sketch
+      - name: Build TubeFurnace
+        run: |
+          # Use the --libraries flag to include the local libraries folder
+          arduino-cli compile \
+            --fqbn arduino:avr:uno \
+            --libraries phoenix/TubeFurnace/libraries \
+            phoenix/TubeFurnace
