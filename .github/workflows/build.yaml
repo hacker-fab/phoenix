@@ -42,5 +42,5 @@ jobs:
           # Use the --libraries flag to include the local libraries folder
           arduino-cli compile \
             --fqbn arduino:avr:uno \
-            --libraries phoenix/TubeFurnace/libraries \
+            --libraries TubeFurnace/libraries \
             phoenix/TubeFurnace
