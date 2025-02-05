@@ -50,8 +50,6 @@
 #define DEGREES_START 1000
 
 /*************************** FUNCTION PROTOTYPES *******************/
-void setup();
-void loop();
 void initSerial();
 void resetClock();
 void initLcd();
