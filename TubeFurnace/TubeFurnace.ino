@@ -6,7 +6,7 @@
 /*************************** SETUP *********************************/
 void setup() {
 
-    initSerial();
+initSerial();
     resetClock();
     initLcd();
     initLED();
