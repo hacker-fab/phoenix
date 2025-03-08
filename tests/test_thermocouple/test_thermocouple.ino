@@ -1,5 +1,9 @@
 #include <Adafruit_MAX31856.h>
 
+// for arduino
+// Adafruit_MAX31856 maxthermo = Adafruit_MAX31856(10);
+
+// for esp32 s3 devkitM
 Adafruit_MAX31856 maxthermo = Adafruit_MAX31856(34, 35, 37, 36);
 
 void setup() {
