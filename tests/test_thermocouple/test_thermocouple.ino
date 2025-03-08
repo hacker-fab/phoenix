@@ -1,6 +1,6 @@
 #include <Adafruit_MAX31856.h>
 
-Adafruit_MAX31856 maxthermo = Adafruit_MAX31856(10);
+Adafruit_MAX31856 maxthermo = Adafruit_MAX31856(34, 35, 37, 36);
 
 void setup() {
   Serial.begin(115200);
