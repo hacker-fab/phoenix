@@ -4783,7 +4783,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "220"
 			(at 127 127 90)
 			(effects
 				(font
@@ -5827,7 +5827,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "220"
 			(at 127 129.54 90)
 			(effects
 				(font
@@ -6511,7 +6511,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "220"
 			(at 127 132.08 90)
 			(effects
 				(font
