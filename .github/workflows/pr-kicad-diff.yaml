@@ -19,6 +19,6 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Kiri
-      uses: usa-reddragon/kiri-github-action@v1
+      uses: usa-reddragon/kiri-github-action@v1.0.30
       with:
         project-file: kicad/productname.kicad_pro
