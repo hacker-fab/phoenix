@@ -1,4 +1,4 @@
-name: pcb_image
+name: KiCad Preview
 on:
   push
 
