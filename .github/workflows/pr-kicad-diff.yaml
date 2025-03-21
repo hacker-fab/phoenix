@@ -1,0 +1,24 @@
+# .github/workflows/pr-kicad-diff.yaml
+name: KiCad Pull Request Diff
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types:
+    - opened
+    - synchronize
+
+jobs:
+  kiri-diff:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+    - name: Kiri
+      uses: usa-reddragon/kiri-github-action@v1
+      with:
+        project-file: kicad/productname.kicad_pro
