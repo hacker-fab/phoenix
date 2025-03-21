@@ -22,11 +22,13 @@ env:
 jobs:
   kiri-diff:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
     - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Kiri
-      uses: hacker-fab/kiri-github-action@v1.2.4
+      uses: hacker-fab/kiri-github-action@v1.2.18
       with:
         project-file: ${{ env.PROJECT_FILE }}
