@@ -1,5 +1,10 @@
 name: KiCad PR Diff
 
+permissions:
+  contents: write  # Allows pushing changes
+  pages: write  # Needed for GitHub Pages deployment
+  id-token: write  # Required for authentication
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
