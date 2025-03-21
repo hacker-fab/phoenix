@@ -31,4 +31,4 @@ jobs:
     - name: Kiri
       uses: hacker-fab/kiri-github-action@v1.2
       with:
-        project-file: "$PROJECT_FILE"
+        project-file: ${{ env.PROJECT_FILE }}
