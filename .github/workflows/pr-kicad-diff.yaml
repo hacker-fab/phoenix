@@ -30,4 +30,4 @@ jobs:
       uses: hacker-fab/kiri-github-action@v1.2.4
       with:
         project-file: ${{ env.PROJECT_FILE }}
-        output-dir: "schematics/phoenix_v1/.kiri"
+        output-dir: "schematics/phoenix_v1/"
