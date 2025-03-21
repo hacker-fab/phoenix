@@ -10,6 +10,9 @@ on:
     - opened
     - synchronize
 
+env:
+    PROJECT_FILE: "./schematics/phoenix_v1/phoenix_v1.kicad_pro"
+
 jobs:
   kiri-diff:
     runs-on: ubuntu-latest
@@ -20,4 +23,4 @@ jobs:
     - name: Kiri
       uses: hacker-fab/kiri-github-action@v1.1
       with:
-        project-file: kicad/productname.kicad_pro
+        project-file: "$PROJECT_FILE"
