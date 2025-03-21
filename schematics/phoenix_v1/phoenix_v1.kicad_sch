@@ -4907,7 +4907,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "40d6ab44-90ad-403c-9d88-58df0e728c2d")
@@ -4975,7 +4975,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "542e879a-caa9-4419-ac5e-1c8cec3839bf")
@@ -4997,7 +4997,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Relay_THT:Relay_NCR_HHG1D-1"
+		(property "Footprint" ""
 			(at 55.88 67.31 0)
 			(effects
 				(font
@@ -5394,7 +5394,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
-		(on_board yes)
+		(on_board no)
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "857ea3a4-087c-4173-9011-e062e22552d8")
