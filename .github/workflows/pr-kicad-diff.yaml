@@ -14,10 +14,10 @@ jobs:
   kiri-diff:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Kiri
-      uses: usa-reddragon/kiri-github-action@v1
+      uses: hacker-fab/kiri-github-action@v1
       with:
         project-file: kicad/productname.kicad_pro
