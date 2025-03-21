@@ -17,7 +17,7 @@ on:
     - synchronize
 
 env:
-    PROJECT_FILE: "./schematics/phoenix_v1/phoenix_v1.kicad_pro"
+    PROJECT_FILE: "schematics/phoenix_v1/phoenix_v1.kicad_pro"
 
 jobs:
   kiri-diff:
@@ -26,6 +26,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.head.sha }}
+    - name: pwd
+      run: pwd
     - name: Kiri
       uses: hacker-fab/kiri-github-action@v1.2
       with:
