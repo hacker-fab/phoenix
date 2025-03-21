@@ -4649,7 +4649,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "!footprints:PEC164120FS0012"
 			(at 46.736 133.35 0)
 			(effects
 				(font
@@ -6101,7 +6101,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "!footprints:MAX31856_HEADER"
 			(at 132.08 167.64 0)
 			(effects
 				(font
