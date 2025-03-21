@@ -27,6 +27,6 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Kiri
-      uses: hacker-fab/kiri-github-action@v1.2.11
+      uses: hacker-fab/kiri-github-action@v1.2.12
       with:
         project-file: ${{ env.PROJECT_FILE }}
