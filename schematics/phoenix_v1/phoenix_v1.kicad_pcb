@@ -4983,6 +4983,46 @@
 		(sheetname "/")
 		(sheetfile "phoenix_v1.kicad_sch")
 		(attr through_hole)
+		(fp_line
+			(start -2.551314 16.648314)
+			(end -2.551314 0.138314)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "a3d21b15-2bc8-4f47-b945-4d634ea40f71")
+		)
+		(fp_line
+			(start -0.011314 -2.401686)
+			(end 19.038686 -2.401686)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "1de99cab-d59f-4ba8-b69d-3ba76a6d7ce9")
+		)
+		(fp_line
+			(start 19.012586 19.191516)
+			(end -0.037414 19.191516)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "ed0c2a39-e19f-44b6-8018-5677baebd476")
+		)
+		(fp_line
+			(start 21.578686 0.138314)
+			(end 21.578686 16.648314)
+			(stroke
+				(width 0.05)
+				(type solid)
+			)
+			(layer "F.SilkS")
+			(uuid "aea99610-d423-4fa9-b0d5-e0ca71d9dd5e")
+		)
 		(fp_rect
 			(start 5 -2)
 			(end 14 4.5)
@@ -4992,7 +5032,7 @@
 			)
 			(fill no)
 			(layer "F.SilkS")
-			(uuid "7f2c5d82-0550-4178-a206-db92df7dc357")
+			(uuid "3ef10f18-67da-4732-b258-89041c3ef978")
 		)
 		(fp_rect
 			(start 6.5 -3)
@@ -5003,7 +5043,7 @@
 			)
 			(fill no)
 			(layer "F.SilkS")
-			(uuid "e70d6978-1939-4c34-bca0-378f525b610b")
+			(uuid "4fc30cbc-2220-499b-8142-a74f4c722460")
 		)
 		(fp_rect
 			(start 10.5 -3)
@@ -5014,47 +5054,7 @@
 			)
 			(fill no)
 			(layer "F.SilkS")
-			(uuid "d538fe35-5dd6-47a4-af83-e43c331e3360")
-		)
-		(fp_line
-			(start -2.551314 16.648314)
-			(end -2.551314 0.138314)
-			(stroke
-				(width 0.05)
-				(type solid)
-			)
-			(layer "Edge.Cuts")
-			(uuid "69db601d-3443-4a88-9e30-2553c09bae3e")
-		)
-		(fp_line
-			(start -0.011314 -2.401686)
-			(end 19.038686 -2.401686)
-			(stroke
-				(width 0.05)
-				(type solid)
-			)
-			(layer "Edge.Cuts")
-			(uuid "56ff365e-787b-4ac4-8234-d34099cee9c4")
-		)
-		(fp_line
-			(start 19.012586 19.191516)
-			(end -0.037414 19.191516)
-			(stroke
-				(width 0.05)
-				(type solid)
-			)
-			(layer "Edge.Cuts")
-			(uuid "9225db18-b6bb-4922-afcd-f26f9494aac8")
-		)
-		(fp_line
-			(start 21.578686 0.138314)
-			(end 21.578686 16.648314)
-			(stroke
-				(width 0.05)
-				(type solid)
-			)
-			(layer "Edge.Cuts")
-			(uuid "c44a047f-a640-4535-8716-d6aec1821b59")
+			(uuid "73d48c3f-9a58-4156-9cc9-fd082ed2ac5b")
 		)
 		(fp_arc
 			(start -2.551314 0.138314)
@@ -5064,8 +5064,8 @@
 				(width 0.05)
 				(type solid)
 			)
-			(layer "Edge.Cuts")
-			(uuid "a677810b-c6bb-45e9-aedc-3f93c6033236")
+			(layer "F.SilkS")
+			(uuid "f6505996-d79f-4a2c-95a6-81017435e920")
 		)
 		(fp_arc
 			(start -0.011314 19.188314)
@@ -5075,42 +5075,30 @@
 				(width 0.05)
 				(type solid)
 			)
-			(layer "Edge.Cuts")
-			(uuid "2502fe63-7d88-44ce-8ee1-a1c5b1a4afe9")
+			(layer "F.SilkS")
+			(uuid "e9f6cafe-5470-4412-8a6a-bcd69964970c")
 		)
 		(fp_arc
 			(start 19.038686 -2.401686)
-			(mid 20.834737 -1.657737)
+			(mid 20.834741 -1.657741)
 			(end 21.578686 0.138314)
 			(stroke
 				(width 0.05)
 				(type solid)
 			)
-			(layer "Edge.Cuts")
-			(uuid "40129aa0-c846-4a92-a207-348e98e438f7")
+			(layer "F.SilkS")
+			(uuid "be3bc89c-474c-44fd-ad92-e0caeca0896d")
 		)
 		(fp_arc
 			(start 21.578686 16.648314)
-			(mid 20.834737 18.444365)
+			(mid 20.834736 18.444361)
 			(end 19.038686 19.188314)
 			(stroke
 				(width 0.05)
 				(type solid)
 			)
-			(layer "Edge.Cuts")
-			(uuid "9e9403a1-335c-4b30-bf4a-b481adb9f735")
-		)
-		(fp_poly
-			(pts
-				(xy 4.260986 17.032514) (xy 4.464186 17.032514) (xy 4.464186 16.194314) (xy 4.260986 16.194314)
-			)
-			(stroke
-				(width 0)
-				(type default)
-			)
-			(fill yes)
-			(layer "F.Fab")
-			(uuid "24dd11a9-1376-4ec0-b89b-ba01749e3412")
+			(layer "F.SilkS")
+			(uuid "9c802ed3-130d-43ff-94ae-6afc2f072b76")
 		)
 		(fp_text user "SCK"
 			(at 7.100686 18.299314 0)
@@ -5400,7 +5388,7 @@
 			(net 0)
 			(net_name "")
 			(layer "F.Cu")
-			(uuid "2ad73edf-7e2c-498c-80e9-221b757ea128")
+			(uuid "0885e720-b9e0-4295-b320-90dfd8455248")
 			(hatch edge 0.5)
 			(connect_pads
 				(clearance 0)
@@ -5448,7 +5436,7 @@
 			(net 0)
 			(net_name "")
 			(layer "F.Cu")
-			(uuid "2e865d45-6d92-4b1e-beaa-6297cdb9f69b")
+			(uuid "5a75855d-9bf2-41cb-9281-4a84a6250d17")
 			(hatch edge 0.5)
 			(connect_pads
 				(clearance 0)
@@ -5497,7 +5485,7 @@
 			(net 0)
 			(net_name "")
 			(layer "B.Cu")
-			(uuid "b21bf54f-38f2-49a1-853c-63887e8ee437")
+			(uuid "328b9be9-be1d-43b1-a9bd-6ec31be28334")
 			(hatch edge 0.5)
 			(connect_pads
 				(clearance 0)
@@ -5545,7 +5533,7 @@
 			(net 0)
 			(net_name "")
 			(layer "B.Cu")
-			(uuid "360141ab-01bc-4699-ad1c-5c925f380277")
+			(uuid "c3c44b29-2eae-4c0b-a7a3-4014a97a0c32")
 			(hatch edge 0.5)
 			(connect_pads
 				(clearance 0)
