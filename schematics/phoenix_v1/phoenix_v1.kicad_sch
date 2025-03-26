@@ -3667,6 +3667,16 @@
 		)
 		(uuid "5f68966c-48bf-4bfc-be6d-0e96a9c8ac2a")
 	)
+	(text "hello"
+		(exclude_from_sim no)
+		(at 167.64 94.996 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "d844425f-4fed-4563-8ce8-8c03c5674b0f")
+	)
 	(junction
 		(at 138.43 62.23)
 		(diameter 0)
