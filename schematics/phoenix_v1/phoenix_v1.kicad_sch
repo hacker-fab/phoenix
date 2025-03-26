@@ -5343,7 +5343,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "HHG1D-1"
+		(property "Value" "SSR Relay"
 			(at 55.88 63.4999 90)
 			(effects
 				(font
