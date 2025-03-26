@@ -7,6 +7,12 @@
 		(legacy_teardrops no)
 	)
 	(paper "A4")
+	(title_block
+		(title "Tube Furnace PCB")
+		(date "2025-03-26")
+		(rev "v2")
+		(company "Waterloo Hacker Fab")
+	)
 	(layers
 		(0 "F.Cu" signal)
 		(2 "B.Cu" signal)
@@ -5353,7 +5359,7 @@
 			(remove_unused_layers no)
 			(solder_mask_margin 0.0508)
 			(thermal_bridge_angle 0)
-			(uuid "9b03067d-4144-43aa-9363-b462a6c30508")
+			(uuid "a61db808-97be-49f8-bbf3-b75f6e0c82a4")
 		)
 		(zone
 			(net 0)

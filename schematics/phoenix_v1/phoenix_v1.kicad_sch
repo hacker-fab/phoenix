@@ -4,6 +4,12 @@
 	(generator_version "9.0")
 	(uuid "77d9c3ff-155c-4dbf-8163-7e6fb1a796b7")
 	(paper "A4")
+	(title_block
+		(title "Tube Furnace Schematic")
+		(date "2025-03-26")
+		(rev "v2")
+		(company "Waterloo Hacker Fab")
+	)
 	(lib_symbols
 		(symbol "Connector:Conn_01x09_Socket"
 			(pin_names
