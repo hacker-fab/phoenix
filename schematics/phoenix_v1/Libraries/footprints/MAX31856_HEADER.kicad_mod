@@ -162,7 +162,7 @@
 	)
 	(fp_arc
 		(start 21.578686 16.648314)
-		(mid 20.834736 18.444361)
+		(mid 20.834731 18.444351)
 		(end 19.038686 19.188314)
 		(stroke
 			(width 0.05)
@@ -178,116 +178,116 @@
 		(uuid "002ce696-766f-4071-afa6-9cb64320d8f5")
 		(effects
 			(font
-				(size 1.0795 1.0795)
+				(size 1 1)
 				(thickness 0.1905)
 			)
 			(justify left bottom)
 		)
 	)
 	(fp_text user "CS"
-		(at 14.593686 14.997314 0)
+		(at 14.5 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "0ad15c77-e2ff-400d-88a3-dccf1f8da216")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "SCK"
-		(at 7.100686 18.299314 0)
+		(at 7.08 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "25978be3-d854-48b7-afc2-bad5b4c97a4c")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "SDI"
-		(at 12.180686 18.299314 0)
+		(at 12.16 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "42127722-eadc-445d-920f-f8d8518d64ab")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "FLT"
-		(at 17.133686 18.299314 0)
+		(at 17.113 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "6bbe1375-b1cd-49ea-a85c-0b31f3b2aac5")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "GND"
-		(at 4.433686 14.997314 0)
+		(at 4.5 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "6d799b51-e3df-4dfa-8cb3-b429a533103c")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "VIN"
-		(at -0.646314 15.124314 0)
+		(at -0.75 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "754ed285-0b18-4da4-88a2-c7f8d02670e6")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "SDO"
-		(at 9.513686 14.997314 0)
+		(at 9.5 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "8e8154c9-0ce6-49b1-865e-003c64430738")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "DRDY"
-		(at 19.546686 14.870314 0)
+		(at 19.193 14.375686 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "cd5c5247-3ac2-4fee-9fc7-4071e65916cf")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "3Vo"
-		(at 2.020686 18.299314 0)
+		(at 2 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "cf5d10e6-10ba-4581-ad60-b219da83f7d0")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)

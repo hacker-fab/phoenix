@@ -61,7 +61,7 @@
       "drc_exclusions": [
         [
           "items_not_allowed|106959000|62031000|9b03067d-4144-43aa-9363-b462a6c30508|00000000-0000-0000-0000-000000000000",
-          "I think Adafruit drew the keepout for other stuff, not for P$1"
+          "Adafruit ISSUE"
         ],
         [
           "items_not_allowed|87909000|62031000|9b03067d-4144-43aa-9363-b462a6c30508|00000000-0000-0000-0000-000000000000",
