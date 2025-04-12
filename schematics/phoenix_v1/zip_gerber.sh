@@ -1,3 +1,3 @@
 #!/bin/zsh
 
-zip jlc.zip *.gbr *.drl
+zip jlc.zip gerber/*.gbr gerber/*.drl
