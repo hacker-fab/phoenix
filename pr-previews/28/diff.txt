@@ -1,10 +1,33 @@
-9a10,15
+91c91
+< 	(net 4 "SSR_PWM")
+---
+> 	(net 4 "/SSR_PWM")
+608c608
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
+4494c4494
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")9a10,15
 > 	(title_block
 > 		(title "Tube Furnace PCB")
 > 		(date "2025-03-26")
 > 		(rev "v2")
 > 		(company "Waterloo Hacker Fab")
 > 	)
+85c91
+< 	(net 4 "SSR_PWM")
+---
+> 	(net 4 "/SSR_PWM")
+602c608
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
+4488c4494
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
 5356c5362
 < 			(uuid "9b03067d-4144-43aa-9363-b462a6c30508")
 ---
@@ -15,7 +38,8 @@
 > 		(rev "v2")
 > 		(company "Waterloo Hacker Fab")
 > 	)
-86,136c92,136
+85,136c91,136
+< 	(net 4 "SSR_PWM")
 < 	(net 5 "/SCK")
 < 	(net 6 "/DRDY")
 < 	(net 7 "/~{CS}")
@@ -68,6 +92,7 @@
 < 	(net 54 "/ENC_A")
 < 	(net 55 "/ENC_SW")
 ---
+> 	(net 4 "/SSR_PWM")
 > 	(net 5 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 > 	(net 6 "unconnected-(U2-GPIO43{slash}U0TXD-Pad43)")
 > 	(net 7 "unconnected-(U2-GPIO39{slash}MTCK-Pad36)")
@@ -150,6 +175,10 @@
 < 			(at 25.69902 -2.45357 0)
 ---
 > 			(at 0 5.5 0)
+607c608
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
 799c800
 < 			(net 47 "Net-(U3-VOUT)")
 ---
@@ -463,7 +492,7 @@
 4491c4494
 < 			(net 50 "/SCL")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 4502c4505
 < 			(net 16 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 ---
@@ -1932,7 +1961,7 @@
 > 		(start 130.5 112.439761)
 > 		(end 130.5 115.5)
 > 		(width 0.5)
-5968,5969c6833,6882
+5968,5969c6833,6866
 < 		(net 51)
 < 		(uuid "cd2d4acd-3133-4096-b255-79e2a9f9596a")
 ---
@@ -1970,8 +1999,9 @@
 > 		(layer "B.Cu")
 > 		(net 27)
 > 		(uuid "6270f096-4aa6-4520-be84-cc97f282a45d")
-> 	)
-> 	(segment
+5972c6869,6885
+< 		(start 128.5 104.58)
+---
 > 		(start 165.86 105.64)
 > 		(end 165.14 105.64)
 > 		(width 0.25)
@@ -1986,11 +2016,10 @@
 > 		(layer "B.Cu")
 > 		(net 27)
 > 		(uuid "d1ff493f-3a8d-4dfc-bbed-e6480bee868e")
-5972c6885
-< 		(start 128.5 104.58)
----
+> 	)
+> 	(segment
 > 		(start 128.5 111.5)
-5974c6887,7271
+5974c6887,7127
 < 		(width 0.2)
 ---
 > 		(width 0.5)
@@ -2234,7 +2263,10 @@
 > 		(start 107.61 78.668)
 > 		(end 116.942 88)
 > 		(width 0.5)
-> 		(layer "F.Cu")
+5976,5977c7129,9600
+< 		(net 51)
+< 		(uuid "fbd4622e-ed88-4f0f-8bf1-d5dbb71d3497")
+---
 > 		(net 35)
 > 		(uuid "19801863-9b93-40bb-aa37-542f77557a3f")
 > 	)
@@ -2378,10 +2410,7 @@
 > 		(start 148.66 75.16)
 > 		(end 165.14 75.16)
 > 		(width 0.5)
-5976,5977c7273,9600
-< 		(net 51)
-< 		(uuid "fbd4622e-ed88-4f0f-8bf1-d5dbb71d3497")
----
+> 		(layer "F.Cu")
 > 		(net 47)
 > 		(uuid "8e94e180-b9dc-4c97-b8f7-1398872ef337")
 > 	)
@@ -4716,7 +4745,8 @@
 > 		(rev "v2")
 > 		(company "Waterloo Hacker Fab")
 > 	)
-86,136c92,136
+85,136c91,136
+< 	(net 4 "SSR_PWM")
 < 	(net 5 "/SCK")
 < 	(net 6 "/DRDY")
 < 	(net 7 "/~{CS}")
@@ -4769,6 +4799,7 @@
 < 	(net 54 "/ENC_A")
 < 	(net 55 "/ENC_SW")
 ---
+> 	(net 4 "/SSR_PWM")
 > 	(net 5 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 > 	(net 6 "unconnected-(U2-GPIO43{slash}U0TXD-Pad43)")
 > 	(net 7 "unconnected-(U2-GPIO39{slash}MTCK-Pad36)")
@@ -4851,6 +4882,10 @@
 < 			(at 25.69902 -2.45357 0)
 ---
 > 			(at 0 5.5 0)
+607c608
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
 799c800
 < 			(net 47 "Net-(U3-VOUT)")
 ---
@@ -5164,7 +5199,7 @@
 4491c4494
 < 			(net 50 "/SCL")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 4502c4505
 < 			(net 16 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 ---
@@ -6782,14 +6817,11 @@
 > 	)
 > 	(segment
 > 		(start 128.5 111.5)
-5986c6887
+5986c6887,7279
 < 		(width 0.2)
 ---
 > 		(width 0.5)
-5988,5989c6889,9600
-< 		(net 51)
-< 		(uuid "fbd4622e-ed88-4f0f-8bf1-d5dbb71d3497")
----
+> 		(layer "F.Cu")
 > 		(net 28)
 > 		(uuid "17ece56b-7ae9-4188-906b-d73c7b541577")
 > 	)
@@ -7181,7 +7213,10 @@
 > 		(start 150.96 76.46)
 > 		(end 126.5 76.46)
 > 		(width 0.5)
-> 		(layer "F.Cu")
+5988,5989c7281,9600
+< 		(net 51)
+< 		(uuid "fbd4622e-ed88-4f0f-8bf1-d5dbb71d3497")
+---
 > 		(net 48)
 > 		(uuid "462634c9-db98-4af4-b08a-0d962f284868")
 > 	)
@@ -9508,7 +9543,8 @@
 > 		(rev "v2")
 > 		(company "Waterloo Hacker Fab")
 > 	)
-86,136c92,136
+85,136c91,136
+< 	(net 4 "SSR_PWM")
 < 	(net 5 "/SCK")
 < 	(net 6 "/DRDY")
 < 	(net 7 "/~{CS}")
@@ -9561,6 +9597,7 @@
 < 	(net 54 "/ENC_A")
 < 	(net 55 "/ENC_SW")
 ---
+> 	(net 4 "/SSR_PWM")
 > 	(net 5 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 > 	(net 6 "unconnected-(U2-GPIO43{slash}U0TXD-Pad43)")
 > 	(net 7 "unconnected-(U2-GPIO39{slash}MTCK-Pad36)")
@@ -9643,6 +9680,10 @@
 < 			(at 25.69902 -2.45357 0)
 ---
 > 			(at 0 5.5 0)
+607c608
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
 799c800
 < 			(net 47 "Net-(U3-VOUT)")
 ---
@@ -10188,7 +10229,7 @@
 4491c4494
 < 			(net 50 "/SCL")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 4502c4505
 < 			(net 16 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 ---
@@ -14536,7 +14577,8 @@
 > 		(rev "v2")
 > 		(company "Waterloo Hacker Fab")
 > 	)
-86,137c92,136
+85,137c91,136
+< 	(net 4 "SSR_PWM")
 < 	(net 5 "/SCK")
 < 	(net 6 "/DRDY")
 < 	(net 7 "/~{CS}")
@@ -14590,6 +14632,7 @@
 < 	(net 55 "/ENC_A")
 < 	(net 56 "/ENC_SW")
 ---
+> 	(net 4 "/SSR_PWM")
 > 	(net 5 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 > 	(net 6 "unconnected-(U2-GPIO43{slash}U0TXD-Pad43)")
 > 	(net 7 "unconnected-(U2-GPIO39{slash}MTCK-Pad36)")
@@ -14672,6 +14715,10 @@
 < 			(at 25.69902 -2.45357 0)
 ---
 > 			(at 0 5.5 0)
+608c608
+< 			(net 4 "SSR_PWM")
+---
+> 			(net 4 "/SSR_PWM")
 800c800
 < 			(net 48 "Net-(U3-VOUT)")
 ---
@@ -15217,7 +15264,7 @@
 4492c4494
 < 			(net 51 "/SCL")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 4503c4505
 < 			(net 17 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 ---
@@ -16035,9 +16082,11 @@
 < 			(thermal_bridge_angle 0)
 < 			(uuid "855d2cfa-31f6-4f3b-a9c9-b2b501bad7ed")
 < 		)
-5844,5855c5324
+5844c5324
 < 			(net 2 "+3.3V")
-< 			(pinfunction "Pin_8")
+---
+> 			(net 36 "/MAX_3.3VOUT")
+5846,5857c5326
 < 			(pintype "passive")
 < 			(solder_mask_margin 0.0508)
 < 			(thermal_bridge_angle 0)
@@ -16048,9 +16097,7 @@
 < 			(size 0.3048 0.9906)
 < 			(layers "F.Cu" "F.Mask" "F.Paste")
 < 			(net 2 "+3.3V")
----
-> 			(net 36 "/MAX_3.3VOUT")
-5857c5326
+< 			(pinfunction "Pin_8")
 < 			(pintype "passive")
 ---
 > 			(pintype "passive+no_connect")
@@ -20239,7 +20286,7 @@
 < 	(net 56 "/DISPLAY_~{RST}")
 ---
 > 	(net 3 "+5V")
-> 	(net 4 "SSR_PWM")
+> 	(net 4 "/SSR_PWM")
 > 	(net 5 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 > 	(net 6 "unconnected-(U2-GPIO43{slash}U0TXD-Pad43)")
 > 	(net 7 "unconnected-(U2-GPIO39{slash}MTCK-Pad36)")
@@ -20325,7 +20372,7 @@
 608c608
 < 			(net 7 "SSR_PWM")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 791c791
 < 			(net 6 "+5V")
 ---
@@ -21011,7 +21058,7 @@
 4477c4494
 < 			(net 54 "/SCL")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 4488c4505
 < 			(net 20 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 ---
@@ -26037,7 +26084,7 @@
 < 	(net 56 "/DISPLAY_~{RST}")
 ---
 > 	(net 3 "+5V")
-> 	(net 4 "SSR_PWM")
+> 	(net 4 "/SSR_PWM")
 > 	(net 5 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 > 	(net 6 "unconnected-(U2-GPIO43{slash}U0TXD-Pad43)")
 > 	(net 7 "unconnected-(U2-GPIO39{slash}MTCK-Pad36)")
@@ -26143,7 +26190,7 @@
 608c608
 < 			(net 7 "SSR_PWM")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 619c619
 < 		(at 156.905 93.93)
 ---
@@ -27113,7 +27160,7 @@
 4477c4494
 < 			(net 54 "/SCL")
 ---
-> 			(net 4 "SSR_PWM")
+> 			(net 4 "/SSR_PWM")
 4488c4505
 < 			(net 20 "unconnected-(U2-GPIO6{slash}ADC1_CH5-Pad6)")
 ---
