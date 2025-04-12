@@ -4321,16 +4321,6 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 66.04) (xy 35.56 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ab59cc8a-0de4-4456-8f0c-395d9b24a669")
-	)
-	(wire
-		(pts
 			(xy 144.78 26.67) (xy 144.78 27.94)
 		)
 		(stroke
@@ -4561,6 +4551,16 @@
 	)
 	(wire
 		(pts
+			(xy 25.4 66.04) (xy 35.56 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0bb0f7d-2ad8-44da-8c3a-4f6c8225c4c4")
+	)
+	(wire
+		(pts
 			(xy 132.08 86.36) (xy 119.38 86.36)
 		)
 		(stroke
@@ -4601,7 +4601,7 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 93.98) (xy 50.8 93.98)
+			(xy 46.99 93.98) (xy 58.42 93.98)
 		)
 		(stroke
 			(width 0)
@@ -4959,6 +4959,16 @@
 		)
 		(uuid "b8df163c-55ab-4f5f-a84b-8adb36af3127")
 	)
+	(label "SSR_PWM"
+		(at 25.4 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "babb7c93-a15d-4310-b493-80a638d07554")
+	)
 	(label "LED_3"
 		(at 55.88 60.96 0)
 		(effects
@@ -4989,6 +4999,16 @@
 		)
 		(uuid "d988dc13-e237-495d-9bf6-c3572f49d598")
 	)
+	(label "SSR_PWM"
+		(at 58.42 93.98 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dd00e17f-84de-4edf-a766-efd33f78b502")
+	)
 	(label "MAX_DRDY"
 		(at 132.08 88.9 180)
 		(effects
@@ -5008,50 +5028,6 @@
 			(justify left bottom)
 		)
 		(uuid "ef8775e0-64d7-4178-8b22-6a89a851a626")
-	)
-	(global_label "SSR_PWM"
-		(shape input)
-		(at 50.8 93.98 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "c4f7beb6-3e80-4dac-83b6-472cfeab1ed1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 62.6146 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SSR_PWM"
-		(shape input)
-		(at 33.02 66.04 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f8f67df5-6898-427d-9819-f51a057904f6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 21.2054 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
 	)
 	(symbol
 		(lib_id "Device:RotaryEncoder_Switch")
