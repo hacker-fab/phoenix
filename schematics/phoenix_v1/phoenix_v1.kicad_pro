@@ -74,10 +74,6 @@
         [
           "silk_edge_clearance|185583320|58500000|7a32947b-eddf-4db4-9a97-47c188404b4e|88c11056-29cb-4a81-bc73-7c197caa9237",
           "ESP32 antenna should be hanging off"
-        ],
-        [
-          "starved_thermal|188000000|59920000|7919c141-ad5d-4da7-add6-927665cce999|ec6ea566-f47b-465a-b59c-84d9cf49f0d5|F.Cu",
-          "There are other GNDs so this isn't that important"
         ]
       ],
       "meta": {
