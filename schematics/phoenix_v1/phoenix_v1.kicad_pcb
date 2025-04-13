@@ -940,7 +940,7 @@
 		(uuid "4179693f-f5fd-4ee8-9a26-fbc3989fed8f")
 		(at 122.96 63.5)
 		(property "Reference" "J1"
-			(at -1.127255 -5.614945 0)
+			(at -3.96 2.25 0)
 			(layer "F.SilkS")
 			(uuid "d34a8a6d-32c6-48d7-be47-7010e9cba943")
 			(effects
