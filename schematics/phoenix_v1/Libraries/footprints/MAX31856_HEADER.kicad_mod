@@ -54,6 +54,46 @@
 		)
 	)
 	(attr through_hole)
+	(fp_line
+		(start -2.551314 16.648314)
+		(end -2.551314 0.138314)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "d03ed53d-e138-4899-a614-f143379e6167")
+	)
+	(fp_line
+		(start -0.011314 -2.401686)
+		(end 19.038686 -2.401686)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0fa8ffbe-d906-4556-a05c-42b45fb8f637")
+	)
+	(fp_line
+		(start 19.012586 19.191516)
+		(end -0.037414 19.191516)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "be976b7f-cfcb-49a1-9b7a-4783fe25ace6")
+	)
+	(fp_line
+		(start 21.578686 0.138314)
+		(end 21.578686 16.648314)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0ca0b39b-adde-446f-8a6f-8b4974b3c8a8")
+	)
 	(fp_rect
 		(start 5 -2)
 		(end 14 4.5)
@@ -87,46 +127,6 @@
 		(layer "F.SilkS")
 		(uuid "474cfc19-1854-401c-af71-6015a3a6947f")
 	)
-	(fp_line
-		(start -2.551314 16.648314)
-		(end -2.551314 0.138314)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "Edge.Cuts")
-		(uuid "d03ed53d-e138-4899-a614-f143379e6167")
-	)
-	(fp_line
-		(start -0.011314 -2.401686)
-		(end 19.038686 -2.401686)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "Edge.Cuts")
-		(uuid "0fa8ffbe-d906-4556-a05c-42b45fb8f637")
-	)
-	(fp_line
-		(start 19.012586 19.191516)
-		(end -0.037414 19.191516)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "Edge.Cuts")
-		(uuid "be976b7f-cfcb-49a1-9b7a-4783fe25ace6")
-	)
-	(fp_line
-		(start 21.578686 0.138314)
-		(end 21.578686 16.648314)
-		(stroke
-			(width 0.05)
-			(type solid)
-		)
-		(layer "Edge.Cuts")
-		(uuid "0ca0b39b-adde-446f-8a6f-8b4974b3c8a8")
-	)
 	(fp_arc
 		(start -2.551314 0.138314)
 		(mid -1.807365 -1.657737)
@@ -135,7 +135,7 @@
 			(width 0.05)
 			(type solid)
 		)
-		(layer "Edge.Cuts")
+		(layer "F.SilkS")
 		(uuid "a63b3ad6-b0c2-4c54-b47f-622fce6d6ec7")
 	)
 	(fp_arc
@@ -146,42 +146,30 @@
 			(width 0.05)
 			(type solid)
 		)
-		(layer "Edge.Cuts")
+		(layer "F.SilkS")
 		(uuid "d0c1c874-4412-48af-bba7-7f9db25588ce")
 	)
 	(fp_arc
 		(start 19.038686 -2.401686)
-		(mid 20.834737 -1.657737)
+		(mid 20.834741 -1.657741)
 		(end 21.578686 0.138314)
 		(stroke
 			(width 0.05)
 			(type solid)
 		)
-		(layer "Edge.Cuts")
+		(layer "F.SilkS")
 		(uuid "95b4bf65-ffc6-49de-97b2-13e775182ce9")
 	)
 	(fp_arc
 		(start 21.578686 16.648314)
-		(mid 20.834737 18.444365)
+		(mid 20.834731 18.444351)
 		(end 19.038686 19.188314)
 		(stroke
 			(width 0.05)
 			(type solid)
 		)
-		(layer "Edge.Cuts")
+		(layer "F.SilkS")
 		(uuid "f9f3b52e-72af-4a44-9b13-bfab75be5717")
-	)
-	(fp_poly
-		(pts
-			(xy 4.260986 17.032514) (xy 4.464186 17.032514) (xy 4.464186 16.194314) (xy 4.260986 16.194314)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill yes)
-		(layer "F.Fab")
-		(uuid "f40bb6d0-a9cb-49a7-ab6d-03f6f5d671b2")
 	)
 	(fp_text user "MAX\n31856"
 		(at 5.5 4 0)
@@ -190,116 +178,116 @@
 		(uuid "002ce696-766f-4071-afa6-9cb64320d8f5")
 		(effects
 			(font
-				(size 1.0795 1.0795)
+				(size 1 1)
 				(thickness 0.1905)
 			)
 			(justify left bottom)
 		)
 	)
 	(fp_text user "CS"
-		(at 14.593686 14.997314 0)
+		(at 14.5 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "0ad15c77-e2ff-400d-88a3-dccf1f8da216")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "SCK"
-		(at 7.100686 18.299314 0)
+		(at 7.08 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "25978be3-d854-48b7-afc2-bad5b4c97a4c")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "SDI"
-		(at 12.180686 18.299314 0)
+		(at 12.16 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "42127722-eadc-445d-920f-f8d8518d64ab")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "FLT"
-		(at 17.133686 18.299314 0)
+		(at 17.113 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "6bbe1375-b1cd-49ea-a85c-0b31f3b2aac5")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "GND"
-		(at 4.433686 14.997314 0)
+		(at 4.5 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "6d799b51-e3df-4dfa-8cb3-b429a533103c")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "VIN"
-		(at -0.646314 15.124314 0)
+		(at -0.75 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "754ed285-0b18-4da4-88a2-c7f8d02670e6")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "SDO"
-		(at 9.513686 14.997314 0)
+		(at 9.5 14.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "8e8154c9-0ce6-49b1-865e-003c64430738")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "DRDY"
-		(at 19.546686 14.870314 0)
+		(at 19.193 14.375686 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "cd5c5247-3ac2-4fee-9fc7-4071e65916cf")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
 	)
 	(fp_text user "3Vo"
-		(at 2.020686 18.299314 0)
+		(at 2 12.75 0)
 		(unlocked yes)
 		(layer "F.SilkS")
 		(uuid "cf5d10e6-10ba-4581-ad60-b219da83f7d0")
 		(effects
 			(font
-				(size 0.8636 0.8636)
+				(size 1 1)
 				(thickness 0.1524)
 			)
 		)
@@ -442,8 +430,8 @@
 		)
 		(polygon
 			(pts
-				(xy 2.004686 0.011314) (xy 1.985066 -0.269259) (xy 1.92659 -0.544371) (xy 1.830394 -0.808667) (xy 1.698351 -1.057003)
-				(xy 1.533032 -1.284546) (xy 1.337653 -1.486866) (xy 1.116019 -1.660026) (xy 0.872442 -1.800655)
+				(xy 2.004686 0.011314) (xy 1.985066 -0.269259) (xy 1.92659 -0.544371) (xy 1.830394 -0.808667) (xy 1.72464 -1.00756)
+				(xy 1.593883 -1.253478) (xy 1.337653 -1.486866) (xy 1.116019 -1.660026) (xy 0.872442 -1.800655)
 				(xy 0.611664 -1.906016) (xy 0.338761 -1.974058) (xy 0.059043 -2.003458) (xy -0.222043 -1.993642)
 				(xy -0.499029 -1.944802) (xy -0.766521 -1.857889) (xy -1.019314 -1.734593) (xy -1.252488 -1.577316)
 				(xy -1.461503 -1.389117) (xy -1.642292 -1.173661) (xy -1.791336 -0.935141) (xy -1.905734 -0.678199)

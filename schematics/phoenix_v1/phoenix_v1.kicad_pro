@@ -51,8 +51,31 @@
           "min_clearance": 0.5
         }
       },
-      "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
+      "drc_exclusions": [
+        [
+          "items_not_allowed|106959000|62031000|9b03067d-4144-43aa-9363-b462a6c30508|00000000-0000-0000-0000-000000000000",
+          "Adafruit ISSUE"
+        ],
+        [
+          "items_not_allowed|87909000|62031000|9b03067d-4144-43aa-9363-b462a6c30508|00000000-0000-0000-0000-000000000000",
+          "I think Adafruit drew the keepout for other stuff, not for P$1"
+        ],
+        [
+          "silk_edge_clearance|167600120|58500000|7a32947b-eddf-4db4-9a97-47c188404b4e|239580a0-ca76-4781-9651-c2cb3a9d1940",
+          "ESP32 antenna should be hanging off"
+        ],
+        [
+          "silk_edge_clearance|185583320|58500000|7a32947b-eddf-4db4-9a97-47c188404b4e|88c11056-29cb-4a81-bc73-7c197caa9237",
+          "ESP32 antenna should be hanging off"
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -179,7 +202,12 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0,
+        0.25,
+        0.5,
+        1.0
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -206,7 +234,12 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -485,7 +518,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "gerber/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",
