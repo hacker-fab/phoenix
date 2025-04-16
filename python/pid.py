@@ -1,10 +1,11 @@
 def clamp(value: float, lower: float, upper: float) -> float:
     return max(min(value, upper), lower)
 
+
 class SimplePID:
     """
     A basic PID controller (no ramp-limiting).
-    
+
     Attributes:
         kp, ki, kd: PID gains.
         imax: Maximum absolute value for the integrator (prevents windup).
@@ -17,7 +18,7 @@ class SimplePID:
         self.kd = kd
         self.imax = imax
         self.debug = debug
-        
+
         self.error = 0.0
         self.prev_error = 0.0
         self.integral = 0.0
@@ -35,17 +36,17 @@ class SimplePID:
         self.error = setpoint - measurement
         self.integral += self.ki * self.error * dt
         self.integral = clamp(self.integral, -self.imax, self.imax)
-        
+
         derivative = (self.error - self.prev_error) / dt if dt > 0 else 0.0
-        
+
         p_term = self.kp * self.error
         i_term = self.integral
         d_term = self.kd * derivative
-        
+
         output = p_term + i_term + d_term
-        
+
         if self.debug:
             print(f"[PID DEBUG] error={self.error:.2f} p={p_term:.2f} i={i_term:.2f} d={d_term:.2f} out={output:.2f}")
-        
+
         self.prev_error = self.error
         return output

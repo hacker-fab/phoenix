@@ -1,16 +1,17 @@
 from dataclasses import dataclass
 from typing import List, Tuple
 
-import math
 from pid import SimplePID
 from profile import piecewise_linear_setpoint
 
+
 @dataclass
 class ThermalModel:
-    ambient: float           # Ambient temperature (°C)
+    ambient: float  # Ambient temperature (°C)
     max_heating_rate: float  # Max heating rate at 100% PWM (°C/s)
-    cooling_coeff: float     # Cooling coefficient
-    
+    cooling_coeff: float  # Cooling coefficient
+
+
 def clamp_pwm(output: float) -> float:
     """Convert an unbounded PID output into a PWM fraction [0..1]."""
     if output < 0:
@@ -20,16 +21,14 @@ def clamp_pwm(output: float) -> float:
     else:
         return output
 
+
 def simulate_profile(
-    profile: List[Tuple[float, float]],
-    model: ThermalModel,
-    sim_time: float,
-    dt: float = 0.1
+    profile: List[Tuple[float, float]], model: ThermalModel, sim_time: float, dt: float = 0.1
 ) -> Tuple[List[float], List[float], List[float], List[float], List[float]]:
     """
     Simulate the furnace temperature using a piecewise linear setpoint profile
     and a basic PID control that drives PWM from 0..1.
-    
+
     Returns:
         times: time in seconds
         temperatures: process temperature
@@ -59,20 +58,20 @@ def simulate_profile(
         output = pid_controller.compute(setpoint, temperature, dt)
         # 3) Clamp output to [0..1] for PWM
         pwm = clamp_pwm(output)
-        
+
         # 4) Compute net heating/cooling for one timestep
         heating = pwm * model.max_heating_rate
         cooling = model.cooling_coeff * (temperature - model.ambient)
-        
+
         temperature += dt * (heating - cooling)
-        
+
         # Store data
         times.append(current_time)
         temperatures.append(temperature)
         setpoints.append(setpoint)
         pwm_values.append(pwm)
         pid_outputs.append(output)
-        
+
         current_time += dt
 
     return times, temperatures, setpoints, pwm_values, pid_outputs
