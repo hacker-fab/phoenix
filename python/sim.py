@@ -3,7 +3,6 @@ from typing import List, Tuple
 
 import pid
 
-
 @dataclass
 class ThermalModel:
     target: float  # Target temperature (°C)
@@ -33,12 +32,20 @@ def simulate_tube_furnace(
     pwm_values: List[float] = []
     pid_outputs: List[float] = []
     ramp_rates: List[float] = []
+    errors: List[float] = []
+    p_vals: List[float] = []
+    i_vals: List[float] = []
+    d_vals: List[float] = []
+    desired_ramp_rates: List[float] = []
+    instantaneous_ramp_rates: List[float] = []
+    heating_values: List[float] = []
+    cooling_values: List[float] = []
 
-    # Assume start temp = ambient temp
+    # Initial temperature equals ambient.
     temperature = config.ambient
 
     rs = pid.RampSoak(
-        kp=0.5,
+        kp=0.1,
         ki=0.05,
         kd=1.0,
         imax=100.0,
@@ -64,7 +71,29 @@ def simulate_tube_furnace(
         pwm_values.append(pwm)
         pid_outputs.append(output)
         ramp_rates.append(rs.ramp_rate)
+        errors.append(rs.error)
+        p_vals.append(rs.p_val)
+        i_vals.append(rs.i_val)
+        d_vals.append(rs.d_val_avg.average())
+        desired_ramp_rates.append(rs.desired_ramp_rate)
+        instantaneous_ramp_rates.append(rs.instantaneous_ramp)
+        heating_values.append(heating)
+        cooling_values.append(cooling)
 
         current_time += dt
 
-    return times, temperatures, pwm_values, pid_outputs, ramp_rates
+    return (
+        times,
+        temperatures,
+        pwm_values,
+        pid_outputs,
+        ramp_rates,
+        errors,
+        p_vals,
+        i_vals,
+        d_vals,
+        desired_ramp_rates,
+        instantaneous_ramp_rates,
+        heating_values,
+        cooling_values,
+    )
