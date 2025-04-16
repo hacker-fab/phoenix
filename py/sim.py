@@ -4,13 +4,13 @@ from typing import List, Tuple
 import pid
 
 @dataclass
-class HeatSimConfig:
+class ThermalModel:
     target: float               # Target temperature (°C)
     ambient: float              # Ambient temperature (°C)
     max_heating_rate: float     # Maximum heating rate (°C/s at 100% power)
     cooling_coeff: float        # Cooling coefficient
 
-def simulate_tube_furnace(config: HeatSimConfig, sim_time, dt: float = 0.1) -> Tuple[List[float], List[float], List[float], List[float], List[float]]:
+def simulate_tube_furnace(config: ThermalModel, sim_time, dt: float = 0.1) -> Tuple[List[float], List[float], List[float], List[float], List[float]]:
     """
     Simulate the temperature response of a tube furnace with PID control.
     
