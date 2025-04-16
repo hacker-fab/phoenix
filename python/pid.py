@@ -13,7 +13,7 @@ def to_pwm(pid_output: float, max_pwm: float = 100.0) -> float:
 class RampSoak:
     """
     PID controller with ramp limiting and integrator windup protection.
-    
+
     Attributes:
         kp, ki, kd: PID gains.
         imax: Maximum absolute value for the integrator.
@@ -21,15 +21,18 @@ class RampSoak:
         crossover_distance: Distance for ramp transitions.
         debug: If True, prints detailed PID debug info.
     """
-    def __init__(self, 
-                 kp: float = 0.5, 
-                 ki: float = 0.05, 
-                 kd: float = 1.0, 
-                 imax: float = 100.0,
-                 ramp_up_limit: float = 30, 
-                 ramp_down_limit: float = -30, 
-                 crossover_distance: float = 10,
-                 debug: bool = False) -> None:
+
+    def __init__(
+        self,
+        kp: float = 0.5,
+        ki: float = 0.05,
+        kd: float = 1.0,
+        imax: float = 100.0,
+        ramp_up_limit: float = 30,
+        ramp_down_limit: float = -30,
+        crossover_distance: float = 10,
+        debug: bool = False,
+    ) -> None:
         self.kp = kp
         self.ki = ki
         self.kd = kd
@@ -69,19 +72,21 @@ class RampSoak:
 
     def debug_pid(self) -> None:
         """Print detailed debugging information about the PID state."""
-        print(f"current: {self.current_val:.2f}, target: {self.target_val:.2f}, "
-              f"ramp_rate: {self.ramp_rate:.2f}, desired_ramp_rate: {self.desired_ramp_rate:.2f}, "
-              f"error: {self.error:.2f}, P: {self.p_val:.2f}, I: {self.i_val:.2f}, "
-              f"D: {self.d_val_avg.average():.2f}, kp: {self.kp:.2f}, ki: {self.ki:.2f}, kd: {self.kd:.2f}")
+        print(
+            f"current: {self.current_val:.2f}, target: {self.target_val:.2f}, "
+            f"ramp_rate: {self.ramp_rate:.2f}, desired_ramp_rate: {self.desired_ramp_rate:.2f}, "
+            f"error: {self.error:.2f}, P: {self.p_val:.2f}, I: {self.i_val:.2f}, "
+            f"D: {self.d_val_avg.average():.2f}, kp: {self.kp:.2f}, ki: {self.ki:.2f}, kd: {self.kd:.2f}"
+        )
 
     def pid_step(self, current_val: float, dt: float) -> float:
         """
         Compute the PID control output.
-        
+
         Args:
             current_val: Measured process variable (e.g., temperature in °C).
             dt: Time difference (in seconds) since the last PID step.
-            
+
         Returns:
             The PID control output.
         """
@@ -100,12 +105,20 @@ class RampSoak:
 
         # Ramp limiting logic based on whether the process is ramping up or down.
         if current_val < self.target_val:
-            self.desired_ramp_rate = min(self.ramp_up_limit,
-                                         self.ramp_up_limit * abs(self.target_val - current_val) / self.crossover_distance)
+            self.desired_ramp_rate = min(
+                self.ramp_up_limit,
+                self.ramp_up_limit
+                * abs(self.target_val - current_val)
+                / self.crossover_distance,
+            )
             self.error = self.desired_ramp_rate - self.ramp_rate
         elif current_val > self.target_val:
-            self.desired_ramp_rate = max(self.ramp_down_limit,
-                                         self.ramp_down_limit * abs(self.target_val - current_val) / self.crossover_distance)
+            self.desired_ramp_rate = max(
+                self.ramp_down_limit,
+                self.ramp_down_limit
+                * abs(self.target_val - current_val)
+                / self.crossover_distance,
+            )
             self.error = self.desired_ramp_rate - self.ramp_rate
         else:
             self.error = self.target_val - current_val

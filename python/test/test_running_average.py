@@ -1,6 +1,7 @@
 import pytest
 from running_average import RunningAverage
 
+
 def test_simple():
     y = RunningAverage(5)
     for i in range(5):

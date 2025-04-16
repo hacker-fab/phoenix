@@ -1,19 +1,20 @@
-import math
 import matplotlib.pyplot as plt
-from typing import List, Tuple
-
 import sim
 
+
 def main() -> None:
-    times, temperatures, pwm_values, pid_outputs, ramp_rates = sim.simulate_tube_furnace(
+    times, temperatures, pwm_values, pid_outputs, ramp_rates = (
+        sim.simulate_tube_furnace(
             config=sim.HeatSimConfig(
                 target=1000.0,
                 ambient=25.0,
                 max_heating_rate=2.0,
                 cooling_coeff=0.01,
-                ),
-            sim_time=60*60, 
-            dt=0.1)
+            ),
+            sim_time=60 * 60,
+            dt=0.1,
+        )
+    )
 
     # Plot Temperature and PWM over time.
     fig, ax1 = plt.subplots()
@@ -39,6 +40,7 @@ def main() -> None:
     plt.title("PID Output and Ramp Rate")
     plt.legend()
     plt.show()
+
 
 if __name__ == "__main__":
     main()
