@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import math
 import matplotlib.pyplot as plt
 from typing import List, Tuple
@@ -60,9 +61,8 @@ class RampSoakPID:
         self.current_val = 0.0
         self.target_val = 0.0
 
-        # Timing variables (in seconds)
-        self.last_time: float | None = None
-        self.last_val: float | None = None
+        # Instead of time tracking, we now only keep the previous measurement.
+        self.prev_val: float | None = None
 
         # Ramp rate and smoothing
         self.ramp_rate = 0.0
@@ -72,8 +72,7 @@ class RampSoakPID:
 
     def reset_pid(self) -> None:
         """Reset the time-dependent PID state."""
-        self.last_time = None
-        self.last_val = None
+        self.prev_val = None
         self.error = 0.0
         self.i_val = 0.0
         self.ramp_rate = 0.0
@@ -89,40 +88,38 @@ class RampSoakPID:
               f"error: {self.error:.2f}, P: {self.p_val:.2f}, I: {self.i_val:.2f}, "
               f"D: {self.d_val_avg.average():.2f}, kp: {self.kp:.2f}, ki: {self.ki:.2f}, kd: {self.kd:.2f}")
 
-    def pid_step(self, current_val: float, current_time: float) -> float:
+    def pid_step(self, current_val: float, dt: float) -> float:
         """
         Compute the PID control output.
         
         Args:
             current_val: Measured process variable (e.g., temperature in °C).
-            current_time: Current time in seconds.
+            dt: Time difference (in seconds) since the last PID step.
             
         Returns:
             The PID control output.
         """
         self.current_val = current_val
-        if self.last_time is None:
-            dt = 0.0
-            self.ramp_rate = 0.0
-            self.last_time = current_time
-            self.last_val = current_val
+        # If there's no previous value, initialize it.
+        if self.prev_val is None:
+            instantaneous_ramp = 0.0
         else:
-            dt = current_time - self.last_time
-            dt = dt if dt > 0 else 1e-6  # avoid division by zero
-            instantaneous_ramp = S_PER_MIN * (current_val - self.last_val) / dt
-            self.ramp_rate_avg.add(instantaneous_ramp)
-            self.ramp_rate = self.ramp_rate_avg.average()
-            self.last_time = current_time
-            self.last_val = current_val
+            instantaneous_ramp = S_PER_MIN * (current_val - self.prev_val) / dt
+
+        self.ramp_rate_avg.add(instantaneous_ramp)
+        self.ramp_rate = self.ramp_rate_avg.average()
+        self.prev_val = current_val
 
         prev_error = self.error
 
         # Ramp limiting logic based on whether the process is ramping up or down.
         if current_val < self.target_val:
-            self.desired_ramp_rate = min(self.ramp_up_limit, self.ramp_up_limit * abs(self.target_val - current_val) / self.crossover_distance)
+            self.desired_ramp_rate = min(self.ramp_up_limit,
+                                         self.ramp_up_limit * abs(self.target_val - current_val) / self.crossover_distance)
             self.error = self.desired_ramp_rate - self.ramp_rate
         elif current_val > self.target_val:
-            self.desired_ramp_rate = max(self.ramp_down_limit, self.ramp_down_limit * abs(self.target_val - current_val) / self.crossover_distance)
+            self.desired_ramp_rate = max(self.ramp_down_limit,
+                                         self.ramp_down_limit * abs(self.target_val - current_val) / self.crossover_distance)
             self.error = self.desired_ramp_rate - self.ramp_rate
         else:
             self.error = self.target_val - current_val
@@ -130,7 +127,7 @@ class RampSoakPID:
         # Compute PID contributions.
         self.p_val = self.kp * self.error
         self.i_val += self.ki * self.error * dt
-        self.d_val = self.kd * (self.error - prev_error) / dt if dt else 0.0
+        self.d_val = self.kd * (self.error - prev_error) / dt if dt > 0 else 0.0
 
         # Integrator windup protection.
         self.i_val = max(min(self.i_val, self.imax), -self.imax)
@@ -146,7 +143,14 @@ def map_pid_to_pwm(pid_output: float, max_pwm: float = 100.0) -> float:
     """Map the PID output to a PWM percentage (0-100%)."""
     return 0.0 if pid_output < 0 else min(pid_output, max_pwm)
 
-def simulate_tube_furnace(sim_time: float = 300.0, dt: float = 0.1) -> Tuple[List[float], List[float], List[float], List[float], List[float]]:
+@dataclass
+class HeatSimConfig:
+    target: float               # Target temperature (°C)
+    ambient: float              # Ambient temperature (°C)
+    max_heating_rate: float     # Maximum heating rate (°C/s at 100% power)
+    cooling_coeff: float        # Cooling coefficient
+
+def simulate_tube_furnace(config: HeatSimConfig, sim_time, dt: float = 0.1) -> Tuple[List[float], List[float], List[float], List[float], List[float]]:
     """
     Simulate the temperature response of a tube furnace with PID control.
     
@@ -159,10 +163,6 @@ def simulate_tube_furnace(sim_time: float = 300.0, dt: float = 0.1) -> Tuple[Lis
         PID outputs, and computed ramp rates.
     """
     n_steps = int(sim_time / dt)
-    temperature = 25.0  # Starting temperature (°C)
-    ambient = 25.0      # Ambient temperature (°C)
-    max_heating_rate = 2.0  # Maximum heating rate (°C/s at 100% power)
-    cooling_coeff = 0.01    # Cooling coefficient
 
     times: List[float] = []
     temperatures: List[float] = []
@@ -170,20 +170,22 @@ def simulate_tube_furnace(sim_time: float = 300.0, dt: float = 0.1) -> Tuple[Lis
     pid_outputs: List[float] = []
     ramp_rates: List[float] = []
 
+    # Assume start temp = ambient temp
+    temperature = config.ambient
+
     pid = RampSoakPID(kp=0.5, ki=0.05, kd=1.0, imax=100.0,
                       ramp_up_limit=30, ramp_down_limit=-30, crossover_distance=10,
                       debug=False)
-    target_temperature = 1000.0
-    pid.set_target(target_temperature)
+    pid.set_target(config.target)
     pid.reset_pid()
 
     current_time = 0.0
     for _ in range(n_steps):
-        output = pid.pid_step(temperature, current_time)
+        output = pid.pid_step(temperature, dt)
         pwm = map_pid_to_pwm(output)
         # Simple model: heating is proportional to PWM, and cooling is proportional to the temperature excess over ambient.
-        heating = (pwm / 100.0) * max_heating_rate
-        cooling = cooling_coeff * (temperature - ambient)
+        heating = (pwm / 100.0) * config.max_heating_rate
+        cooling = config.cooling_coeff * (temperature - config.ambient)
         temperature += dt * (heating - cooling)
         
         times.append(current_time)
@@ -197,7 +199,15 @@ def simulate_tube_furnace(sim_time: float = 300.0, dt: float = 0.1) -> Tuple[Lis
     return times, temperatures, pwm_values, pid_outputs, ramp_rates
 
 def main() -> None:
-    times, temperatures, pwm_values, pid_outputs, ramp_rates = simulate_tube_furnace(sim_time=3000.0, dt=0.1)
+    times, temperatures, pwm_values, pid_outputs, ramp_rates = simulate_tube_furnace(
+            config=HeatSimConfig(
+                target=1000.0,
+                ambient=25.0,
+                max_heating_rate=2.0,
+                cooling_coeff=0.01,
+                ),
+            sim_time=60*S_PER_MIN, 
+            dt=0.1)
 
     # Plot Temperature and PWM over time.
     fig, ax1 = plt.subplots()
