@@ -33,7 +33,7 @@ def simulate_tube_furnace(config: HeatSimConfig, sim_time, dt: float = 0.1) -> T
     # Assume start temp = ambient temp
     temperature = config.ambient
 
-    rs = pid.RampSoakPID(kp=0.5, ki=0.05, kd=1.0, imax=100.0,
+    rs = pid.RampSoak(kp=0.5, ki=0.05, kd=1.0, imax=100.0,
                       ramp_up_limit=30, ramp_down_limit=-30, crossover_distance=10,
                       debug=False)
     rs.set_target(config.target)

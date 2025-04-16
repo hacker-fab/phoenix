@@ -10,7 +10,7 @@ def to_pwm(pid_output: float, max_pwm: float = 100.0) -> float:
     return 0.0 if pid_output < 0 else min(pid_output, max_pwm)
 
 
-class RampSoakPID:
+class RampSoak:
     """
     PID controller with ramp limiting and integrator windup protection.
     
