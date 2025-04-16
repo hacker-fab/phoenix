@@ -7,23 +7,6 @@ S_PER_MIN = 60  # Constant to convert per-second values to per-minute
 N_RAMP_AVG = 10  # Number of values to average for ramp rate smoothing
 N_DVAL_AVG = 10  # Number of values to average for derivative smoothing
 
-class RunningAverage:
-    """A simple running average calculator."""
-    def __init__(self, size: int):
-        self.size = size
-        self.values: List[float] = []
-    
-    def add(self, value: float) -> None:
-        self.values.append(value)
-        if len(self.values) > self.size:
-            self.values.pop(0)
-    
-    def average(self) -> float:
-        return sum(self.values) / len(self.values) if self.values else 0.0
-    
-    def clear(self) -> None:
-        self.values.clear()
-
 class RampSoakPID:
     """
     PID controller with ramp limiting and integrator windup protection.
