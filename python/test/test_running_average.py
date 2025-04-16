@@ -1,4 +1,3 @@
-import pytest
 from running_average import RunningAverage
 
 

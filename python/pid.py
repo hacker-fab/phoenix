@@ -107,17 +107,13 @@ class RampSoak:
         if current_val < self.target_val:
             self.desired_ramp_rate = min(
                 self.ramp_up_limit,
-                self.ramp_up_limit
-                * abs(self.target_val - current_val)
-                / self.crossover_distance,
+                self.ramp_up_limit * abs(self.target_val - current_val) / self.crossover_distance,
             )
             self.error = self.desired_ramp_rate - self.ramp_rate
         elif current_val > self.target_val:
             self.desired_ramp_rate = max(
                 self.ramp_down_limit,
-                self.ramp_down_limit
-                * abs(self.target_val - current_val)
-                / self.crossover_distance,
+                self.ramp_down_limit * abs(self.target_val - current_val) / self.crossover_distance,
             )
             self.error = self.desired_ramp_rate - self.ramp_rate
         else:
