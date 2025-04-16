@@ -5,9 +5,9 @@ N_RAMP_AVG = 10  # Number of values to average for ramp rate smoothing
 N_DVAL_AVG = 10  # Number of values to average for derivative smoothing
 
 
-def to_pwm(pid_output: float, max_pwm: float = 100.0) -> float:
+def to_pwm(pid_output: float) -> float:
     """Map the PID output to a PWM percentage (0-100%)."""
-    return 0.0 if pid_output < 0 else min(pid_output, max_pwm)
+    return 0.0 if pid_output < 0 else min(pid_output, 1.0)
 
 
 class RampSoak:

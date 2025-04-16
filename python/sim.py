@@ -55,7 +55,7 @@ def simulate_tube_furnace(
         output = rs.pid_step(temperature, dt)
         pwm = pid.to_pwm(output)
         # Simple model: heating is proportional to PWM, and cooling is proportional to the temperature excess over ambient.
-        heating = (pwm / 100.0) * config.max_heating_rate
+        heating = pwm * config.max_heating_rate
         cooling = config.cooling_coeff * (temperature - config.ambient)
         temperature += dt * (heating - cooling)
 
