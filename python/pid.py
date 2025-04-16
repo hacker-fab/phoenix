@@ -21,7 +21,6 @@ class RampSoak:
         crossover_distance: Distance for ramp transitions.
         debug: If True, prints detailed PID debug info.
     """
-
     def __init__(
         self,
         kp: float = 0.5,
@@ -54,6 +53,7 @@ class RampSoak:
         self.prev_val: float | None = None
 
         # Ramp rate and smoothing
+        self.instantaneous_ramp = 0.0  # New: instantaneous ramp rate (°C/min) before averaging
         self.ramp_rate = 0.0
         self.desired_ramp_rate = 0.0
         self.ramp_rate_avg = RunningAverage(N_RAMP_AVG)
@@ -91,19 +91,19 @@ class RampSoak:
             The PID control output.
         """
         self.current_val = current_val
-        # If there's no previous value, initialize it.
+        # Calculate instantaneous ramp rate (°C/min)
         if self.prev_val is None:
-            instantaneous_ramp = 0.0
+            self.instantaneous_ramp = 0.0
         else:
-            instantaneous_ramp = S_PER_MIN * (current_val - self.prev_val) / dt
+            self.instantaneous_ramp = S_PER_MIN * (current_val - self.prev_val) / dt
 
-        self.ramp_rate_avg.add(instantaneous_ramp)
+        self.ramp_rate_avg.add(self.instantaneous_ramp)
         self.ramp_rate = self.ramp_rate_avg.average()
         self.prev_val = current_val
 
         prev_error = self.error
 
-        # Ramp limiting logic based on whether the process is ramping up or down.
+        # Ramp limiting logic
         if current_val < self.target_val:
             self.desired_ramp_rate = min(
                 self.ramp_up_limit,
@@ -119,17 +119,14 @@ class RampSoak:
         else:
             self.error = self.target_val - current_val
 
-        # Compute PID contributions.
         self.p_val = self.kp * self.error
         self.i_val += self.ki * self.error * dt
         self.d_val = self.kd * (self.error - prev_error) / dt if dt > 0 else 0.0
 
-        # Integrator windup protection.
         self.i_val = max(min(self.i_val, self.imax), -self.imax)
 
         if self.debug:
             self.debug_pid()
 
         self.d_val_avg.add(self.d_val)
-        # Return the combined PID output.
         return self.p_val + self.i_val + self.d_val_avg.average()
