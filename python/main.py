@@ -3,17 +3,15 @@ import sim
 
 
 def main() -> None:
-    times, temperatures, pwm_values, pid_outputs, ramp_rates = (
-        sim.simulate_tube_furnace(
-            config=sim.ThermalModel(
-                target=1000.0,
-                ambient=25.0,
-                max_heating_rate=0.5,
-                cooling_coeff=0.0001,
-            ),
-            sim_time=60 * 60,
-            dt=0.1,
-        )
+    times, temperatures, pwm_values, pid_outputs, ramp_rates = sim.simulate_tube_furnace(
+        config=sim.ThermalModel(
+            target=1000.0,
+            ambient=25.0,
+            max_heating_rate=0.5,
+            cooling_coeff=0.0001,
+        ),
+        sim_time=60 * 60,
+        dt=0.1,
     )
 
     # Plot Temperature and PWM over time.

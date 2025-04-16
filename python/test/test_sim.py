@@ -1,6 +1,6 @@
-import math
 import pytest
 from sim import simulate_tube_furnace, ThermalModel
+
 
 @pytest.mark.parametrize(
     "config, sim_time, tolerance",
@@ -11,7 +11,7 @@ from sim import simulate_tube_furnace, ThermalModel
         (ThermalModel(target=1000.0, ambient=25.0, max_heating_rate=1.0, cooling_coeff=0.0001), 1800, 5.0),
         # Low target, 30 mins
         (ThermalModel(target=250.0, ambient=25.0, max_heating_rate=0.5, cooling_coeff=0.0001), 1800, 5.0),
-    ]
+    ],
 )
 def test_convergence(config: ThermalModel, sim_time: float, tolerance: float):
     """
@@ -20,11 +20,10 @@ def test_convergence(config: ThermalModel, sim_time: float, tolerance: float):
     """
     # Run for one hour (3600 s) with dt=0.1 s
     times, temperatures, pwm_values, pid_outputs, ramp_rates = simulate_tube_furnace(config, sim_time=3600, dt=0.1)
-    
+
     final_temp = temperatures[-1]
-    assert abs(final_temp - config.target) < 5.0, (
-        f"Final temperature {final_temp} not within tolerance of target {config.target}"
-    )
+    assert abs(final_temp - config.target) < 5.0, f"Final temperature {final_temp} not within tolerance of target {config.target}"
+
 
 @pytest.mark.parametrize(
     "config, sim_time, ramp_limit",
@@ -35,7 +34,7 @@ def test_convergence(config: ThermalModel, sim_time: float, tolerance: float):
         (ThermalModel(target=1000.0, ambient=25.0, max_heating_rate=1.0, cooling_coeff=0.0001), 1800, 30.0),
         # Low target, 30 mins
         (ThermalModel(target=250.0, ambient=25.0, max_heating_rate=0.5, cooling_coeff=0.0001), 1800, 30.0),
-    ]
+    ],
 )
 def test_ramp_rate_limit(config: ThermalModel, sim_time: float, ramp_limit: float):
     """
@@ -50,4 +49,6 @@ def test_ramp_rate_limit(config: ThermalModel, sim_time: float, ramp_limit: floa
 
     # The maximum ramp rate observed (in °C/min) should be close to (but not exceed) the ramp up limit.
     max_ramp = max(ramp_rates)
-    assert max_ramp <= ramp_limit + tolerance, f"Max ramp rate at idx {ramp_rates.index(max_ramp)}: {max_ramp} exceeds allowed limit (30 °C/min + tolerance)."
+    assert max_ramp <= ramp_limit + tolerance, (
+        f"Max ramp rate at idx {ramp_rates.index(max_ramp)}: {max_ramp} exceeds allowed limit (30 °C/min + tolerance)."
+    )
