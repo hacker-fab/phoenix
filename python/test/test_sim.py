@@ -5,49 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# # Convergence with profile and rate limit checking
-# @pytest.mark.parametrize(
-#     "model, profile, rate_limit, sim_time, tolerance",
-#     [
-#         # Example that should pass:
-#         # The profile ramp from 25°C to 100°C in 600s and 100°C to 200°C in 600s has slopes:
-#         #   (100-25)/600*60 = 7.5 °C/min and (200-100)/600*60 = 10 °C/min,
-#         # both below the 30 °C/min limit.
-#         (
-#             ThermalModel(
-#                 ambient=25.0,
-#                 max_heating_rate=2.0,  # °C/s at full power
-#                 cooling_coeff=0.01,
-#             ),
-#             [(0, 25), (600, 100), (1200, 200)],
-#             30.0,  # maximum allowed ramp rate in °C/min
-#             1800.0,  # simulate for 1800 seconds (30 mins)
-#             5.0,  # tolerance in °C for convergence
-#         ),
-#     ],
-# )
-# def test_profile_convergence_and_rate_limit(model, profile, rate_limit, sim_time, tolerance):
-#     """
-#     Test that the simulation following a given piecewise-linear profile:
-#       - Has a profile that does not exceed the ramp-rate limit.
-#       - Converges so that the final temperature is within tolerance of the final setpoint.
-#       - (Optionally) The observed simulation ramp rate is within the limit.
-#     """
-#     # First, validate the profile itself.
-#     violations = validate_profile_rate(profile, rate_limit, rate_unit="deg/min")
-#     assert len(violations) == 0, f"Profile violates the rate limit: {violations}"
-
-#     # Run the profile simulation.
-#     times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(profile, model, sim_time, dt=0.1)
-
-#     # Check convergence at the final breakpoint.
-#     final_setpoint = setpoints[-1]
-#     final_temp = temperatures[-1]
-#     assert abs(final_temp - final_setpoint) < tolerance, (
-#         f"Final temperature {final_temp}°C differs from final setpoint {final_setpoint}°C by more than {tolerance}°C."
-#     )
-
-
 @pytest.mark.parametrize(
     "model, profile, rate_limit, sim_time, tolerance",
     [
@@ -61,7 +18,7 @@ import numpy as np
         ),
     ],
 )
-def test_profile_convergence_and_plot(model, profile, rate_limit, sim_time, tolerance):
+def test_conv_ramp(model, profile, rate_limit, sim_time, tolerance):
     # 1) Validate profile
     violations = validate_profile_rate(profile, rate_limit, rate_unit="deg/min")
     assert not violations, f"Profile rate violations: {violations}"
@@ -70,7 +27,7 @@ def test_profile_convergence_and_plot(model, profile, rate_limit, sim_time, tole
     dt = 0.1
     times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(profile, model, sim_time, dt)
 
-    # 3) Convergence assertion
+    # 3) Assert convergence
     final_err = abs(temperatures[-1] - setpoints[-1])
     assert final_err < tolerance, f"Final temp error {final_err:.1f}°C exceeds tolerance {tolerance}°C"
 
@@ -97,7 +54,7 @@ def test_profile_convergence_and_plot(model, profile, rate_limit, sim_time, tole
     kernel = np.ones(window_len) / window_len
     slopes = np.convolve(raw_slopes, kernel, mode="same")
 
-    # Check that simulated ramp rates do not exceed the rate limit
+    # 5) Check that simulated ramp rates do not exceed the rate limit
     max_simulated_ramp = max(slopes)
     assert max_simulated_ramp <= rate_limit + 1.0, (
         f"Simulated ramp rate {max_simulated_ramp:.2f}°C/min exceeds allowed limit of {rate_limit}°C/min (plus tolerance)."
