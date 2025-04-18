@@ -1,73 +1,97 @@
+import os
 import pytest
-from sim import simulate_profile, ThermalModel
-from profile import validate_profile_rate
 import matplotlib.pyplot as plt
 import numpy as np
 
+from sim import simulate_profile, ThermalModel
+from profile import validate_profile_rate
+
+# Ensure graphs/ directory exists
+os.makedirs("graphs", exist_ok=True)
 
 @pytest.mark.parametrize(
-    "model, profile, rate_limit, sim_time, tolerance",
+    "model, profile, rate_limit, sim_time, tolerance, test_index",
     [
-        # Profile from 25→100→200°C with gentle slopes well below 30°C/min.
         (
             ThermalModel(ambient=25.0, max_heating_rate=2.0, cooling_coeff=0.01),
             [(0, 25), (600, 100), (1200, 200)],
-            30.0,    # maximum ramp rate, °C/min
-            1800.0,  # simulate 30 minutes
-            5.0      # °C tolerance at final setpoint
+            30.0,
+            1800.0,
+            5.0,
+            0,
         ),
+        # you can add more cases here, incrementing test_index each time...
     ],
 )
-def test_conv_ramp(model, profile, rate_limit, sim_time, tolerance):
-    # 1) Validate profile
+def test_profile_convergence_and_save_plots(
+    model, profile, rate_limit, sim_time, tolerance, test_index
+):
+    """
+    1) Validate that the piecewise‐linear profile obeys the ramp‐rate limit.
+    2) Simulate following that profile.
+    3) Assert convergence to the final setpoint.
+    4) Save two debug plots under graphs/ as PNGs:
+       - {index}_convergence_{temps}.png
+       - {index}_slopes_{temps}.png
+    """
+    # 1) Profile validation
     violations = validate_profile_rate(profile, rate_limit, rate_unit="deg/min")
     assert not violations, f"Profile rate violations: {violations}"
 
     # 2) Run simulation
     dt = 0.1
-    times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(profile, model, sim_time, dt)
+    times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(
+        profile, model, sim_time, dt
+    )
 
-    # 3) Assert convergence
-    final_err = abs(temperatures[-1] - setpoints[-1])
-    assert final_err < tolerance, f"Final temp error {final_err:.1f}°C exceeds tolerance {tolerance}°C"
+    # 3) Convergence assertion
+    final_error = abs(temperatures[-1] - setpoints[-1])
+    assert final_error < tolerance, (
+        f"Final temperature error {final_error:.1f}°C exceeds tolerance {tolerance}°C"
+    )
 
-    # 4a) Plot Temperature vs. Setpoint
-    plt.figure()
-    plt.plot(times, temperatures, label="Simulated Temperature", color="blue")
-    plt.plot(times, setpoints,   label="Profile Setpoint",     color="orange", linestyle="--")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Temperature (°C)")
-    plt.title("Simulated Temperature vs. Profile Setpoint")
-    plt.legend()
-    plt.show()
+    # Build a short description from the profile temperatures, e.g. "25-100-200"
+    temps = [str(int(T)) for (_, T) in profile]
+    description = "-".join(temps)
 
-    # 4b) Compute & Plot instantaneous slope (°C/min)
+    # 4a) Plot & save temperature vs setpoint
+    fig1, ax1 = plt.subplots()
+    ax1.plot(times, temperatures, label="Simulated Temperature", color="blue")
+    ax1.plot(times, setpoints,   label="Profile Setpoint",     color="orange", linestyle="--")
+    ax1.set_xlabel("Time (s)")
+    ax1.set_ylabel("Temperature (°C)")
+    ax1.set_title("Simulated Temperature vs. Profile Setpoint")
+    ax1.legend()
+    fname1 = f"graphs/{test_index}_convergence_{description}.png"
+    fig1.savefig(fname1)
+    plt.close(fig1)
+
+    # 4b) Compute instantaneous slope and smooth
     raw_slopes = np.diff(temperatures) / dt * 60
     slope_times = times[1:]
-
-    window_sec = 10.0                     # smooth over 10 seconds
-    window_len = int(window_sec / dt)     # = 10 / 0.1 = 100 samples
-    if window_len < 1:
-        window_len = 1
-
-    # Create the filter kernel and apply convolution:
+    window_sec = 10.0
+    window_len = max(1, int(window_sec / dt))
     kernel = np.ones(window_len) / window_len
     slopes = np.convolve(raw_slopes, kernel, mode="same")
 
-    # 5) Check that simulated ramp rates do not exceed the rate limit
-    max_simulated_ramp = max(slopes)
-    assert max_simulated_ramp <= rate_limit + 1.0, (
-        f"Simulated ramp rate {max_simulated_ramp:.2f}°C/min exceeds allowed limit of {rate_limit}°C/min (plus tolerance)."
+    # Optional runtime check of simulated ramp rates
+    max_slope = slopes.max()
+    assert max_slope <= rate_limit + 1.0, (
+        f"Simulated ramp rate {max_slope:.1f}°C/min exceeds limit {rate_limit}°C/min"
     )
 
-    plt.figure()
-    plt.plot(slope_times, slopes, label="Temp Slope (°C/min)", color="green")
-    plt.axhline(rate_limit, color="red", linestyle="--", label=f"Rate Limit ({rate_limit}°C/min)")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Slope (°C/min)")
-    plt.title("Rate of Temperature Change Over Time")
-    plt.legend()
-    plt.show()
+    # Plot & save slope vs time
+    fig2, ax2 = plt.subplots()
+    ax2.plot(slope_times, slopes, label="Temp Slope (°C/min)", color="green")
+    ax2.axhline(rate_limit, color="red", linestyle="--",
+                label=f"Rate Limit ({rate_limit}°C/min)")
+    ax2.set_xlabel("Time (s)")
+    ax2.set_ylabel("Slope (°C/min)")
+    ax2.set_title("Rate of Temperature Change Over Time")
+    ax2.legend()
+    fname2 = f"graphs/{test_index}_slopes_{description}.png"
+    fig2.savefig(fname2)
+    plt.close(fig2)
 
 
 
