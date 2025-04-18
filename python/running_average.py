@@ -1,6 +1,7 @@
 from typing import List
 
 
+# TODO use numpy/ulab
 class RunningAverage:
     """A simple running average calculator."""
 

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from sim_profile import simulate_profile, ThermalModel
+from sim import simulate_profile, ThermalModel
 from profile import validate_profile_rate
 
 
