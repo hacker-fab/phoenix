@@ -1,7 +1,9 @@
-# Stuff
+# Custom Stuff
 # -------------------
 *.swp
 .DS_Store
+python/graphs
+
 
 # C
 # -------------------
