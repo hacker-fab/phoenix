@@ -1,54 +1,146 @@
 import pytest
-from sim import simulate_tube_furnace, ThermalModel
+from sim import simulate_profile, ThermalModel
+from profile import validate_profile_rate
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+# # Convergence with profile and rate limit checking
+# @pytest.mark.parametrize(
+#     "model, profile, rate_limit, sim_time, tolerance",
+#     [
+#         # Example that should pass:
+#         # The profile ramp from 25°C to 100°C in 600s and 100°C to 200°C in 600s has slopes:
+#         #   (100-25)/600*60 = 7.5 °C/min and (200-100)/600*60 = 10 °C/min,
+#         # both below the 30 °C/min limit.
+#         (
+#             ThermalModel(
+#                 ambient=25.0,
+#                 max_heating_rate=2.0,  # °C/s at full power
+#                 cooling_coeff=0.01,
+#             ),
+#             [(0, 25), (600, 100), (1200, 200)],
+#             30.0,  # maximum allowed ramp rate in °C/min
+#             1800.0,  # simulate for 1800 seconds (30 mins)
+#             5.0,  # tolerance in °C for convergence
+#         ),
+#     ],
+# )
+# def test_profile_convergence_and_rate_limit(model, profile, rate_limit, sim_time, tolerance):
+#     """
+#     Test that the simulation following a given piecewise-linear profile:
+#       - Has a profile that does not exceed the ramp-rate limit.
+#       - Converges so that the final temperature is within tolerance of the final setpoint.
+#       - (Optionally) The observed simulation ramp rate is within the limit.
+#     """
+#     # First, validate the profile itself.
+#     violations = validate_profile_rate(profile, rate_limit, rate_unit="deg/min")
+#     assert len(violations) == 0, f"Profile violates the rate limit: {violations}"
+
+#     # Run the profile simulation.
+#     times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(profile, model, sim_time, dt=0.1)
+
+#     # Check convergence at the final breakpoint.
+#     final_setpoint = setpoints[-1]
+#     final_temp = temperatures[-1]
+#     assert abs(final_temp - final_setpoint) < tolerance, (
+#         f"Final temperature {final_temp}°C differs from final setpoint {final_setpoint}°C by more than {tolerance}°C."
+#     )
 
 
 @pytest.mark.parametrize(
-    "config, sim_time, tolerance",
+    "model, profile, rate_limit, sim_time, tolerance",
     [
-        # High target, no cooling
-        (ThermalModel(target=1000.0, ambient=25.0, max_heating_rate=0.5, cooling_coeff=0), 3600, 5.0),
-        # High target, high power
-        (ThermalModel(target=1000.0, ambient=25.0, max_heating_rate=1.0, cooling_coeff=0.0001), 1800, 5.0),
-        # Low target, 30 mins
-        (ThermalModel(target=250.0, ambient=25.0, max_heating_rate=0.5, cooling_coeff=0.0001), 1800, 5.0),
+        # Profile from 25→100→200°C with gentle slopes well below 30°C/min.
+        (
+            ThermalModel(ambient=25.0, max_heating_rate=2.0, cooling_coeff=0.01),
+            [(0, 25), (600, 100), (1200, 200)],
+            30.0,    # maximum ramp rate, °C/min
+            1800.0,  # simulate 30 minutes
+            5.0      # °C tolerance at final setpoint
+        ),
     ],
 )
-def test_convergence(config: ThermalModel, sim_time: float, tolerance: float):
-    """
-    Run the simulation long enough so that the final temperature approaches the target.
-    We assert that the final temperature is within 5°C of the target.
-    """
-    # Run for one hour (3600 s) with dt=0.1 s
-    times, temperatures, pwm_values, pid_outputs, ramp_rates = simulate_tube_furnace(config, sim_time=3600, dt=0.1)
+def test_profile_convergence_and_plot(model, profile, rate_limit, sim_time, tolerance):
+    # 1) Validate profile
+    violations = validate_profile_rate(profile, rate_limit, rate_unit="deg/min")
+    assert not violations, f"Profile rate violations: {violations}"
 
-    final_temp = temperatures[-1]
-    assert abs(final_temp - config.target) < 5.0, f"Final temperature {final_temp} not within tolerance of target {config.target}"
+    # 2) Run simulation
+    dt = 0.1
+    times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(profile, model, sim_time, dt)
 
+    # 3) Convergence assertion
+    final_err = abs(temperatures[-1] - setpoints[-1])
+    assert final_err < tolerance, f"Final temp error {final_err:.1f}°C exceeds tolerance {tolerance}°C"
 
-@pytest.mark.parametrize(
-    "config, sim_time, ramp_limit",
-    [
-        # High target, no cooling
-        (ThermalModel(target=1000.0, ambient=25.0, max_heating_rate=0.5, cooling_coeff=0), 3600, 30.0),
-        # High target, high power
-        (ThermalModel(target=1000.0, ambient=25.0, max_heating_rate=1.0, cooling_coeff=0.0001), 1800, 30.0),
-        # Low target, 30 mins
-        (ThermalModel(target=250.0, ambient=25.0, max_heating_rate=0.5, cooling_coeff=0.0001), 1800, 30.0),
-    ],
-)
-def test_ramp_rate_limit(config: ThermalModel, sim_time: float, ramp_limit: float):
-    """
-    Test that during the ramp-up phase the simulation does not exceed the configured ramp limit.
-    Given a ramp-up limit of 30 °C/min (0.5 °C/s) and a max heating rate of 2.0 °C/s,
-    the expected PWM should be (0.5/2.0)*100 = 25% on average during the ramp-limited period.
-    We also check that the maximum computed ramp rate does not exceed the limit (with a small tolerance).
-    """
-    # Run a shorter simulation where the system is still ramping (e.g., 600 s)
-    times, temperatures, pwm_values, pid_outputs, ramp_rates = simulate_tube_furnace(config, sim_time, dt=0.1)
-    tolerance = 1.0
+    # 4a) Plot Temperature vs. Setpoint
+    plt.figure()
+    plt.plot(times, temperatures, label="Simulated Temperature", color="blue")
+    plt.plot(times, setpoints,   label="Profile Setpoint",     color="orange", linestyle="--")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Temperature (°C)")
+    plt.title("Simulated Temperature vs. Profile Setpoint")
+    plt.legend()
+    plt.show()
 
-    # The maximum ramp rate observed (in °C/min) should be close to (but not exceed) the ramp up limit.
-    max_ramp = max(ramp_rates)
-    assert max_ramp <= ramp_limit + tolerance, (
-        f"Max ramp rate at idx {ramp_rates.index(max_ramp)}: {max_ramp} exceeds allowed limit (30 °C/min + tolerance)."
+    # 4b) Compute & Plot instantaneous slope (°C/min)
+    raw_slopes = np.diff(temperatures) / dt * 60
+    slope_times = times[1:]
+
+    window_sec = 10.0                     # smooth over 10 seconds
+    window_len = int(window_sec / dt)     # = 10 / 0.1 = 100 samples
+    if window_len < 1:
+        window_len = 1
+
+    # Create the filter kernel and apply convolution:
+    kernel = np.ones(window_len) / window_len
+    slopes = np.convolve(raw_slopes, kernel, mode="same")
+
+    # Check that simulated ramp rates do not exceed the rate limit
+    max_simulated_ramp = max(slopes)
+    assert max_simulated_ramp <= rate_limit + 1.0, (
+        f"Simulated ramp rate {max_simulated_ramp:.2f}°C/min exceeds allowed limit of {rate_limit}°C/min (plus tolerance)."
     )
+
+    plt.figure()
+    plt.plot(slope_times, slopes, label="Temp Slope (°C/min)", color="green")
+    plt.axhline(rate_limit, color="red", linestyle="--", label=f"Rate Limit ({rate_limit}°C/min)")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Slope (°C/min)")
+    plt.title("Rate of Temperature Change Over Time")
+    plt.legend()
+    plt.show()
+
+
+
+@pytest.mark.parametrize(
+    "profile, max_rate, should_pass",
+    [
+        # This profile should pass: the slopes are gentle.
+        (
+            [(0, 25), (600, 100), (1200, 200)],
+            30.0,  # max ramp rate in °C/min
+            True,
+        ),
+        # This profile should fail: the first segment's slope is too high.
+        (
+            [(0, 25), (300, 200), (600, 500)],
+            30.0,  # max ramp rate in °C/min
+            False,
+        ),
+    ],
+)
+def test_validate_profile_rate(profile, max_rate, should_pass):
+    """
+    Test that validate_profile_rate returns the expected outcome.
+    For a given profile and max_rate:
+      - If should_pass is True, then there should be no violations.
+      - If should_pass is False, then at least one violation should be returned.
+    """
+    violations = validate_profile_rate(profile, max_rate, rate_unit="deg/min")
+
+    if should_pass:
+        assert len(violations) == 0, f"Expected profile to pass, but got violations: {violations}"
+    else:
+        assert len(violations) > 0, "Expected profile to fail, but no violations were found."
