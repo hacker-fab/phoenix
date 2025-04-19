@@ -1,15 +1,21 @@
-from dataclasses import dataclass
+import sys
+
+if sys.implementation.name == "micropython":
+    from udataclasses import dataclass
+else:
+    from dataclasses import dataclass
 from typing import List, Tuple
 
 from pid import SimplePID
 from profile import piecewise_linear_setpoint
 
 
+# TODO udataclasses needs default attributes
 @dataclass
 class ThermalModel:
-    ambient: float  # Ambient temperature (°C)
-    max_heating_rate: float  # Max heating rate at 100% PWM (°C/s)
-    cooling_coeff: float  # Cooling coefficient
+    ambient: float = 25.0           # Ambient temperature (°C)
+    max_heating_rate: float = 0.0   # Max heating rate at 100% PWM (°C/s)
+    cooling_coeff: float = 0.0      # Cooling coefficient
 
 
 def clamp_pwm(output: float) -> float:
