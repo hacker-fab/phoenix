@@ -1,22 +1,22 @@
 # phoenix
 
-Phoenix is a tube furnace used for thermal oxidation and annealing processes.
+Phoenix is a tube furnace used for thermal oxidation and annealing.
 
 It uses PID control to follow custom temperature profiles and works on both MicroPython on the ESP32 and a simulated Python desktop environment.
 
 <table>
   <tr>
     <td>
-      <img src="https://github.com/user-attachments/assets/3d76382d-c257-4131-b17b-15bba04e13a1" width="300"><br>
+      <img src="https://github.com/user-attachments/assets/3d76382d-c257-4131-b17b-15bba04e13a1" width="350"><br>
       <sub>Fig 1. Tube furnace in action</sub>
     </td>
     <td>
-      <img src="https://github.com/user-attachments/assets/71b93478-83d2-484c-b73c-5136b2d3e025" width="300"><br>
+      <img src="https://github.com/user-attachments/assets/71b93478-83d2-484c-b73c-5136b2d3e025" width="350"><br>
       <sub>Fig 2. Simulated PID following a heat profile</sub>
     </td>
     <td>
-      <img src="https://github.com/user-attachments/assets/b7655219-a86a-4da7-9037-93fa70059ff8" width="300"><br>
-      <sub>Fig 3. Controlled ramp rates</sub>
+      <img src="https://github.com/user-attachments/assets/b7655219-a86a-4da7-9037-93fa70059ff8" width="350"><br>
+      <sub>Fig 3. Controlling ramp rate to prevent thermal shock</sub>
     </td>
   </tr>
 </table>
