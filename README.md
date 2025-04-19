@@ -18,3 +18,31 @@ arduino-cli compile \
     --libraries TubeFurnace/libraries \
     TubeFurnace
 ```
+
+# Python setup
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+# Micropython setup
+
+Install micropython
+```
+https://github.com/micropython/micropython/tree/master/ports/unix#readme
+```
+
+Install `typing`
+```
+micropython -m mip install github:josverl/micropython-stubs/mip/typing.mpy
+```
+
+Install `udataclasses`
+```bash
+cd ~/.micropython/lib
+# extract src/udataclasses
+git clone https://github.com/dhrosa/udataclasses.git tmp
+mv tmp/src/udataclasses .
+rm -rf tmp
+```
