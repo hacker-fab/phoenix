@@ -45,7 +45,7 @@ def test_profile_convergence_and_save_plots(
     )
 
     # 3) Convergence assertion
-    final_error = abs(temperatures[-1] - setpoints[-1])
+    final_error = max(abs(a - b) for a, b in zip(temperatures, setpoints))
     assert final_error < tolerance, (
         f"Final temperature error {final_error:.1f}°C exceeds tolerance {tolerance}°C"
     )
