@@ -15,7 +15,7 @@ on:
     types:
     - opened
     - synchronize
-  paths:
+    paths:
     - 'schematics/**'
 
 env:
