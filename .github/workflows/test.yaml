@@ -35,4 +35,4 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Pytest
-        run: PYTHONPATH=python pytest src/test/
+        run: PYTHONPATH=src pytest src/test/
