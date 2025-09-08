@@ -1,3 +1,6 @@
 matplotlib
 pytest
 ruff
+
+esptool
+mpremote
