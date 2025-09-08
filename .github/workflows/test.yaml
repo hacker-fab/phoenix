@@ -3,8 +3,14 @@ name: Test Python
 on:
   push:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - ".github/workflows/test.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/**"
+      - ".github/workflows/test.yml"
 
 jobs:
   lint:
@@ -19,7 +25,9 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Lint
-        run: ruff check python/ python/test/
+        run: ruff check src/ src/test/
+      - name: Format
+        run: ruff check src/ src/test/
 
   unit:
     name: Unit Tests
@@ -33,4 +41,4 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
       - name: Pytest
-        run: PYTHONPATH=python pytest python/test/*.py
+        run: PYTHONPATH=src pytest src/test/
