@@ -17,7 +17,7 @@ Design notes:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, List
+from collections.abc import Iterable
 
 
 ControlPoint = list[float]  # [x, y]
@@ -181,7 +181,7 @@ class Curve:
             return 0.0
 
         # Ensure ordering (cheap if already sorted).
-        sorted_points: List[ControlPoint] = sorted(self._cv_points, key=lambda v: v[0])
+        sorted_points: list[ControlPoint] = sorted(self._cv_points, key=lambda v: v[0])
 
         # Clamp to range
         if offset <= sorted_points[0][0]:
