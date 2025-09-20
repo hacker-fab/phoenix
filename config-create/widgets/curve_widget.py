@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import sys
 import PyQt6.QtCore as QtCore
 import PyQt6.QtGui as QtGui
 import PyQt6.QtWidgets as QtWidgets
@@ -32,6 +33,7 @@ class CurveWidget(QtWidgets.QWidget):
         self._cv_point_size: int = 6
         self._legend_border: int = 35
         self._control_bar_height: int = 40
+        self._help_bar_height: int = 22
         self._padding: int = 12
 
         # Drag / selection tracking
@@ -135,22 +137,21 @@ class CurveWidget(QtWidgets.QWidget):
         self.redo_shortcut.activated.connect(self._redo)
 
     def _update_window_title(self) -> None:
+        # Keep window title simple; detailed instructions now live in bottom help bar.
         parent_window = self.window()
-        if not parent_window:
-            return
-        base_title = "Qt6 Curve Editor"
-        undo_available = self._history_index > 0
-        redo_available = self._history_index < len(self._history) - 1
-        status_parts: list[str] = []
-        if undo_available:
-            status_parts.append("Ctrl+Z: Undo")
-        if redo_available:
-            status_parts.append("Ctrl+Shift+Z: Redo")
-        if status_parts:
-            title = f"{base_title} - {' | '.join(status_parts)} | Right-click to delete points | Delete: Remove selected point"
-        else:
-            title = f"{base_title} - Right-click to delete points | Delete: Remove selected point"
-        parent_window.setWindowTitle(title)
+        if parent_window:
+            parent_window.setWindowTitle("Qt6 Curve Editor")
+        # Refresh help label text (in case platform-specific modifier differs).
+        if hasattr(self, "help_label"):
+            self.help_label.setText(self._build_help_text())
+
+    def _build_help_text(self) -> str:
+        mod = "Cmd" if sys.platform == "darwin" else "Ctrl"
+        # We could reflect undo/redo availability dynamically, but for simplicity we always show them.
+        return (
+            f"Double-click: Add point  |  Right-click: Delete point  |  Delete: Remove selected  |  "
+            f"{mod}+Z: Undo  |  {mod}+Shift+Z: Redo  |  Drag: Move point"
+        )
 
     # ------------------------------------------------------------------
     # Context menu / point deletion
@@ -209,6 +210,14 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_max_spinbox.setRange(100, 10000)
         self.y_max_spinbox.setValue(1200)
         self.y_max_spinbox.valueChanged.connect(self._update_scales)
+
+        # Help / instruction label (populated in _update_window_title)
+        self.help_label: QtWidgets.QLabel = QtWidgets.QLabel()
+        self.help_label.setText(self._build_help_text())
+        font = self.help_label.font()
+        font.setPointSize(max(8, font.pointSize() - 1))
+        self.help_label.setFont(font)
+        self.help_label.setStyleSheet("color: gray;")
 
     def _update_scales(self) -> None:
         if self._restoring_state:
@@ -277,7 +286,7 @@ class CurveWidget(QtWidgets.QWidget):
         mouse_y = mouse_pos.y() - self._padding
 
         graph_width = self.width() - self._legend_border - 2 * self._padding
-        graph_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
+        graph_height = self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding
 
         local_x = max(
             0,
@@ -318,7 +327,7 @@ class CurveWidget(QtWidgets.QWidget):
         graph_y = point_screen_y - self._padding
 
         graph_width = self.width() - self._legend_border - 2 * self._padding
-        graph_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
+        graph_height = self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding
 
         local_x = max(0, min(self.curve.x_max, graph_x / float(graph_width) * self.curve.x_max))
         normalized_y = 1.0 - (graph_y / float(graph_height))
@@ -349,7 +358,10 @@ class CurveWidget(QtWidgets.QWidget):
         y_range = self.curve.y_max - self.curve.y_min
         normalized_value = (local_value - self.curve.y_min) / y_range
         normalized_value = max(0.0, min(1.0, 1.0 - normalized_value))
-        return normalized_value * (self.height() - self._legend_border - self._control_bar_height - 2 * self._padding) + self._padding
+        return (
+            normalized_value * (self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding)
+            + self._padding
+        )
 
     def _get_x_value_for(self, local_value: float) -> float:
         normalized_value = local_value / self.curve.x_max
@@ -360,7 +372,7 @@ class CurveWidget(QtWidgets.QWidget):
     # Drawing
     # ------------------------------------------------------------------
     def _draw(self, painter: QtGui.QPainter) -> None:
-        canvas_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
+        canvas_height = self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding
 
         palette = self.palette()
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Mid))
@@ -369,7 +381,7 @@ class CurveWidget(QtWidgets.QWidget):
 
         num_vert_lines = 7
         line_spacing_x = (self.width() - self._legend_border - 2 * self._padding) / 7.0
-        line_spacing_y = (self.height() - self._legend_border - self._control_bar_height - 2 * self._padding) / 10.0
+        line_spacing_y = (self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding) / 10.0
         num_horiz_lines = 11
 
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Window))
@@ -403,6 +415,8 @@ class CurveWidget(QtWidgets.QWidget):
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Mid))
         painter.setBrush(palette.color(QtGui.QPalette.ColorRole.Window))
         painter.drawRect(0, control_bar_y, self.width(), self._control_bar_height)
+        # Help bar rectangle just below control bar
+        painter.drawRect(0, control_bar_y + self._control_bar_height, self.width(), self._help_bar_height)
 
         self._position_controls(control_bar_y)
 
@@ -466,6 +480,15 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_max_spinbox.move(x_offset + 50, y_pos + 8)
         self.y_max_spinbox.resize(80, 25)
         self.y_max_spinbox.show()
+
+        # Position help label in a separate bar below the control bar
+        self.help_label.setParent(self)
+        help_bar_y = y_pos + self._control_bar_height
+        # Dynamically size and vertically center help label within the help bar
+        label_height = max(12, self._help_bar_height - 6)
+        self.help_label.resize(self.width() - 20, label_height)
+        self.help_label.move(10, help_bar_y + (self._help_bar_height - label_height) // 2)
+        self.help_label.show()
 
     def keyPressEvent(self, a0: QtGui.QKeyEvent | None) -> None:
         if a0 is None:
