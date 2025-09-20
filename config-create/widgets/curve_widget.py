@@ -375,48 +375,62 @@ class CurveWidget(QtWidgets.QWidget):
         canvas_height = self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding
 
         palette = self.palette()
+        # Draw only the graph (plot) area background; leave rest transparent
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Mid))
         painter.setBrush(palette.color(QtGui.QPalette.ColorRole.Base))
-        painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
+        graph_width = self.width() - self._legend_border - 2 * self._padding
+        painter.drawRect(self._legend_border, self._padding, graph_width, canvas_height)
 
-        num_vert_lines = 7
-        line_spacing_x = (self.width() - self._legend_border - 2 * self._padding) / 7.0
-        line_spacing_y = (self.height() - self._legend_border - self._control_bar_height - self._help_bar_height - 2 * self._padding) / 10.0
-        num_horiz_lines = 11
+        # Build grid positions at each 100 units (nearest hundred marks) plus end caps
+        x_values: list[float] = []
+        step = 100.0
+        xv = 0.0
+        while xv < self.curve.x_max:
+            x_values.append(xv)
+            xv += step
+        if not x_values or x_values[-1] != self.curve.x_max:
+            x_values.append(self.curve.x_max)
+        # Y values from y_min upward every 100, include y_max
+        y_values: list[float] = []
+        yv = self.curve.y_min
+        while yv < self.curve.y_max:
+            y_values.append(yv)
+            yv += step
+        if not y_values or y_values[-1] != self.curve.y_max:
+            y_values.append(self.curve.y_max)
 
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Window))
-        for i in range(num_vert_lines + 1):
-            line_pos = i * line_spacing_x + self._legend_border + self._padding
+        for xv in x_values:
+            line_pos = (
+                (xv / self.curve.x_max) * (self.width() - self._legend_border - 2 * self._padding) + self._legend_border + self._padding
+            )
             painter.drawLine(int(line_pos), self._padding, int(line_pos), canvas_height + self._padding)
 
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Window))
-        for i in range(num_horiz_lines):
-            line_pos = canvas_height - i * line_spacing_y + self._padding
-            painter.drawLine(self._legend_border, int(line_pos), self.width(), int(line_pos))
+        for yv in y_values:
+            py = self._get_y_value_for(yv)
+            painter.drawLine(self._legend_border, int(py), self.width(), int(py))
 
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Text))
-        y_range = self.curve.y_max - self.curve.y_min
-        for i in range(num_horiz_lines):
-            line_pos = canvas_height - i * line_spacing_y + self._padding
-            value = int(self.curve.y_min + (y_range * i / (num_horiz_lines - 1)))
-            painter.drawText(6, int(line_pos + 3), str(value))
+        for yv in y_values:
+            py = self._get_y_value_for(yv)
+            painter.drawText(6, int(py + 3), str(int(yv)))
 
-        for i in range(num_vert_lines + 1):
-            line_pos = i * line_spacing_x + self._legend_border + self._padding
+        for idx, xv in enumerate(x_values):
+            line_pos = (
+                (xv / self.curve.x_max) * (self.width() - self._legend_border - 2 * self._padding) + self._legend_border + self._padding
+            )
             offpos_x = -14
-            if i == 0:
+            if idx == 0:
                 offpos_x = -2
-            elif i == num_vert_lines:
+            elif idx == len(x_values) - 1:
                 offpos_x = -33
-            value = int(self.curve.x_max * i / num_vert_lines)
-            painter.drawText(int(line_pos + offpos_x), canvas_height + self._padding + 18, str(value))
+            painter.drawText(int(line_pos + offpos_x), canvas_height + self._padding + 18, str(int(xv)))
 
         control_bar_y = canvas_height + self._padding + 25
+        # Omit control bar background for a cleaner look
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Mid))
-        painter.setBrush(palette.color(QtGui.QPalette.ColorRole.Window))
-        painter.drawRect(0, control_bar_y, self.width(), self._control_bar_height)
-        # Help bar rectangle just below control bar
-        painter.drawRect(0, control_bar_y + self._control_bar_height, self.width(), self._help_bar_height)
+        # (Intentionally not drawing a rect for control bar background)
 
         self._position_controls(control_bar_y)
 
