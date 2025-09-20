@@ -1,13 +1,14 @@
 import sys
 import PyQt6.QtCore as QtCore
-import PyQt6.QtGui as QtGui
+
+# Removed unused PyQt6.QtGui import
 import PyQt6.QtWidgets as QtWidgets
 
-from CurveWidget import CurveWidget
+from widgets.curve_widget import CurveWidget
 
 
 class Editor(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.resize(580, 480)
         self.setWindowTitle("Qt6 Curve Editor")
@@ -20,7 +21,7 @@ class Editor(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout(central_widget)
 
         # Create curve widget
-        self.curve_widget = CurveWidget(self)
+        self.curve_widget: CurveWidget = CurveWidget(self)
         layout.addWidget(self.curve_widget)
 
         # Ensure the curve widget can receive focus for keyboard shortcuts
@@ -28,7 +29,7 @@ class Editor(QtWidgets.QMainWindow):
         self.curve_widget.setFocus()
 
 
-def main():
+def main() -> int:
     """Main function with proper error handling"""
     try:
         app = QtWidgets.QApplication(sys.argv)
