@@ -1,7 +1,12 @@
 # from __future__ import print_function
 
+import copy
+import PyQt6.QtCore as QtCore
 import PyQt6.QtGui as QtGui
 import PyQt6.QtWidgets as QtWidgets
+
+# Set to True to enable debug logging for state saves
+DEBUG_UNDO = False
 
 
 class Curve:
@@ -35,7 +40,6 @@ class Curve:
 
     def build_curve(self):
         """Sort control points by x coordinate for linear interpolation"""
-        # Sort points by x coordinate for proper linear interpolation
         self._cv_points = sorted(self._cv_points, key=lambda v: v[0])
 
     def set_cv_value(self, index, x_value, y_value):
@@ -53,23 +57,18 @@ class Curve:
         if not self._cv_points:
             return 0.0
 
-        # Ensure points are sorted by x coordinate
         sorted_points = sorted(self._cv_points, key=lambda v: v[0])
 
-        # Handle edge cases
         if offset <= sorted_points[0][0]:
             return sorted_points[0][1]
         if offset >= sorted_points[-1][0]:
             return sorted_points[-1][1]
 
-        # Find the two points to interpolate between
         for i in range(len(sorted_points) - 1):
             x1, y1 = sorted_points[i]
             x2, y2 = sorted_points[i + 1]
-
             if x1 <= offset <= x2:
-                # Linear interpolation
-                if x2 == x1:  # Avoid division by zero
+                if x2 == x1:
                     return y1
                 t = (offset - x1) / (x2 - x1)
                 return y1 + t * (y2 - y1)
@@ -78,14 +77,11 @@ class Curve:
 
 
 class CurveWidget(QtWidgets.QWidget):
-    """This is a resizeable Widget which shows an editable curve which can
-    be modified."""
+    """Resizeable widget displaying an editable curve with undo/redo support."""
 
     def __init__(self, parent):
-        """Constructs the CurveWidget, we start with an initial curve"""
         super().__init__(parent)
 
-        # Single curve
         self.curve = Curve()
 
         # Widget render constants
@@ -94,33 +90,178 @@ class CurveWidget(QtWidgets.QWidget):
         self._control_bar_height = 40
         self._padding = 12
 
-        # Currently dragged control point, format is:
-        # (PointIndex, Drag-Offset (x,y))
-        self._drag_point = None
-
-        # Currently selected control point index
+        # Drag / selection tracking
+        self._drag_point = None  # (index, (offset_x, offset_y))
         self._selected_point = None
+        self._pre_drag_points = None  # deep copy of points at drag start
 
-        # Create control widgets
+        # Undo/Redo state history
+        self._history = []
+        self._history_index = -1
+        self._restoring_state = False
+
+        # Build UI
+        self.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
         self._create_controls()
+        self._setup_shortcuts()
 
+        # Save initial state AFTER widget is ready
+        self._push_state("Initial")
+        self._update_window_title()
+
+    # ------------------------------------------------------------------
+    # Undo/Redo infrastructure
+    # ------------------------------------------------------------------
+    def _capture_state(self):
+        """Return a deep copy snapshot of current logical state."""
+        return {
+            "cv_points": copy.deepcopy(self.curve._cv_points),
+            "x_max": self.curve.x_max,
+            "y_min": self.curve.y_min,
+            "y_max": self.curve.y_max,
+        }
+
+    def _states_equal(self, a, b):
+        return a["cv_points"] == b["cv_points"] and a["x_max"] == b["x_max"] and a["y_min"] == b["y_min"] and a["y_max"] == b["y_max"]
+
+    def _push_state(self, action_name="Unknown"):
+        """Record current state AFTER a modification."""
+        current = self._capture_state()
+        # Truncate redo branch if we are not at the end
+        if self._history_index < len(self._history) - 1:
+            self._history = self._history[: self._history_index + 1]
+        # Avoid duplicates
+        if self._history and self._states_equal(current, self._history[-1]):
+            if DEBUG_UNDO:
+                print(f"UNDO DEBUG: skip duplicate after '{action_name}'")
+            return
+        self._history.append(current)
+        self._history_index = len(self._history) - 1
+        if DEBUG_UNDO:
+            print(f"UNDO DEBUG: push '{action_name}' -> index {self._history_index} / {len(self._history)}")
+
+    # Backwards compatibility (legacy code/tests may call _save_state before modifying)
+    def _save_state(self, action_name="Unknown"):
+        """Deprecated: kept for backward compatibility.
+        Unlike legacy behavior we now snapshot current state (post-mod)."""
+        self._push_state(action_name)
+
+    def _undo(self):
+        if self._history_index > 0:
+            self._history_index -= 1
+            self._restore_state(self._history[self._history_index])
+            self._update_window_title()
+            if DEBUG_UNDO:
+                print(f"UNDO DEBUG: undo -> index {self._history_index} / {len(self._history)}")
+
+    def _redo(self):
+        if self._history_index < len(self._history) - 1:
+            self._history_index += 1
+            self._restore_state(self._history[self._history_index])
+            self._update_window_title()
+            if DEBUG_UNDO:
+                print(f"UNDO DEBUG: redo -> index {self._history_index} / {len(self._history)}")
+
+    def _restore_state(self, state):
+        self._restoring_state = True
+        try:
+            self.curve._cv_points = copy.deepcopy(state["cv_points"])
+            self.curve.x_max = state["x_max"]
+            self.curve.y_min = state["y_min"]
+            self.curve.y_max = state["y_max"]
+
+            # Update spin boxes (will not push state due to flag)
+            self.x_max_spinbox.setValue(state["x_max"])
+            self.y_min_spinbox.setValue(state["y_min"])
+            self.y_max_spinbox.setValue(state["y_max"])
+
+            self.curve.build_curve()
+            self.update()
+        finally:
+            self._restoring_state = False
+
+    # ------------------------------------------------------------------
+    # UI / shortcuts
+    # ------------------------------------------------------------------
+    def _setup_shortcuts(self):
+        self.undo_shortcut = QtGui.QShortcut(QtGui.QKeySequence.StandardKey.Undo, self)
+        self.undo_shortcut.activated.connect(self._undo)
+        self.redo_shortcut = QtGui.QShortcut(QtGui.QKeySequence.StandardKey.Redo, self)
+        self.redo_shortcut.activated.connect(self._redo)
+
+    def _update_window_title(self):
+        parent_window = self.window()
+        if not parent_window:
+            return
+        base_title = "Qt6 Curve Editor"
+        undo_available = self._history_index > 0
+        redo_available = self._history_index < len(self._history) - 1
+        status_parts = []
+        if undo_available:
+            status_parts.append("Ctrl+Z: Undo")
+        if redo_available:
+            status_parts.append("Ctrl+Shift+Z: Redo")
+        if status_parts:
+            title = f"{base_title} - {' | '.join(status_parts)} | Right-click to delete points"
+        else:
+            title = f"{base_title} - Right-click to delete points"
+        parent_window.setWindowTitle(title)
+
+    # ------------------------------------------------------------------
+    # Context menu / point deletion
+    # ------------------------------------------------------------------
+    def _show_context_menu(self, position):
+        point_index = self._get_point_at_position(position)
+        if point_index is None:
+            return
+        menu = QtWidgets.QMenu(self)
+        delete_action = menu.addAction("Delete Point")
+        if delete_action:
+            delete_action.triggered.connect(lambda: self._delete_point(point_index))
+        menu.exec(self.mapToGlobal(position))
+
+    def _get_point_at_position(self, position):
+        mouse_x = position.x()
+        mouse_y = position.y()
+        for idx, (x, y) in enumerate(self.curve.get_cv_points()):
+            px = self._get_x_value_for(x)
+            py = self._get_y_value_for(y)
+            if abs(px - mouse_x) < self._cv_point_size + 4 and abs(py - mouse_y) < self._cv_point_size + 4:
+                return idx
+        return None
+
+    def _delete_point(self, point_index):
+        if len(self.curve._cv_points) <= 1:
+            return
+        # Perform mutation first
+        del self.curve._cv_points[point_index]
+        if self._selected_point == point_index:
+            self._selected_point = None
+        elif self._selected_point is not None and self._selected_point > point_index:
+            self._selected_point -= 1
+        self.curve.build_curve()
+        self.update()
+        # Save state AFTER deletion
+        self._push_state(f"Delete point {point_index}")
+        self._update_window_title()
+
+    # ------------------------------------------------------------------
+    # Axis scale controls
+    # ------------------------------------------------------------------
     def _create_controls(self):
-        """Create the control widgets for axis scaling"""
-        # X-axis max control
         self.x_max_label = QtWidgets.QLabel("X Max:")
         self.x_max_spinbox = QtWidgets.QSpinBox()
         self.x_max_spinbox.setRange(100, 10000)
         self.x_max_spinbox.setValue(1400)
         self.x_max_spinbox.valueChanged.connect(self._update_scales)
 
-        # Y-axis min control
         self.y_min_label = QtWidgets.QLabel("Y Min:")
         self.y_min_spinbox = QtWidgets.QSpinBox()
         self.y_min_spinbox.setRange(0, 1000)
         self.y_min_spinbox.setValue(25)
         self.y_min_spinbox.valueChanged.connect(self._update_scales)
 
-        # Y-axis max control
         self.y_max_label = QtWidgets.QLabel("Y Max:")
         self.y_max_spinbox = QtWidgets.QSpinBox()
         self.y_max_spinbox.setRange(100, 10000)
@@ -128,160 +269,163 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_max_spinbox.valueChanged.connect(self._update_scales)
 
     def _update_scales(self):
-        """Update the curve axis scales when controls change"""
-        x_max = self.x_max_spinbox.value()
-        y_min = self.y_min_spinbox.value()
-        y_max = self.y_max_spinbox.value()
-
-        # Ensure y_max > y_min
-        if y_max <= y_min:
-            y_max = y_min + 100
-            self.y_max_spinbox.setValue(y_max)
-
-        self.curve.set_axis_scales(x_max, y_min, y_max)
+        if self._restoring_state:
+            return
+        new_x = self.x_max_spinbox.value()
+        new_ymin = self.y_min_spinbox.value()
+        new_ymax = self.y_max_spinbox.value()
+        # Enforce invariant
+        if new_ymax <= new_ymin:
+            new_ymax = new_ymin + 1
+            self.y_max_spinbox.setValue(new_ymax)
+        changed = new_x != self.curve.x_max or new_ymin != self.curve.y_min or new_ymax != self.curve.y_max
+        self.curve.set_axis_scales(new_x, new_ymin, new_ymax)
+        if changed:
+            self._push_state("Axis scale change")
         self.update()
+        self._update_window_title()
 
-    def paintEvent(self, e):
-        """Internal QT paint event, draws the entire widget"""
+    # ------------------------------------------------------------------
+    # Events
+    # ------------------------------------------------------------------
+    def paintEvent(self, a0):
         qp = QtGui.QPainter()
         qp.begin(self)
         self._draw(qp)
         qp.end()
 
-    def mousePressEvent(self, QMouseEvent):
-        """Internal mouse-press handler"""
+    def mousePressEvent(self, a0):
         self._drag_point = None
+        self._pre_drag_points = None
         self._selected_point = None
-        mouse_pos = QMouseEvent.pos()
-        mouse_x = mouse_pos.x()
-        mouse_y = mouse_pos.y()
 
-        for cv_index, (x, y) in enumerate(self.curve.get_cv_points()):
-            point_x = self._get_x_value_for(x)
-            point_y = self._get_y_value_for(y)
+        mouse_pos = a0.pos()
+        mx = mouse_pos.x()
+        my = mouse_pos.y()
 
-            # Check if mouse is close to this control point
-            if abs(point_x - mouse_x) < self._cv_point_size + 4:
-                if abs(point_y - mouse_y) < self._cv_point_size + 4:
-                    # Store the offset from mouse to point center in screen coordinates
-                    drag_x_offset = point_x - mouse_x
-                    drag_y_offset = point_y - mouse_y
-                    self._drag_point = (cv_index, (drag_x_offset, drag_y_offset))
-                    self._selected_point = cv_index
-                    break
-
+        for idx, (x, y) in enumerate(self.curve.get_cv_points()):
+            px = self._get_x_value_for(x)
+            py = self._get_y_value_for(y)
+            if abs(px - mx) < self._cv_point_size + 4 and abs(py - my) < self._cv_point_size + 4:
+                self._drag_point = (idx, (px - mx, py - my))
+                self._selected_point = idx
+                # record original points for later comparison (drag end)
+                self._pre_drag_points = copy.deepcopy(self.curve._cv_points)
+                break
         self.update()
 
-    def mouseReleaseEvent(self, QMouseEvent):
-        """Internal mouse-release handler"""
+    def mouseReleaseEvent(self, a0):
+        # Save state after drag if something actually moved
+        if self._drag_point is not None and self._pre_drag_points is not None:
+            if self.curve._cv_points != self._pre_drag_points:
+                self._push_state("Move point")
+                self._update_window_title()
         self._drag_point = None
+        self._pre_drag_points = None
 
-    def mouseDoubleClickEvent(self, QMouseEvent):
-        """Internal mouse-double-click handler - adds new control point"""
-        mouse_pos = QMouseEvent.pos()
+    def mouseDoubleClickEvent(self, a0):
+        mouse_pos = a0.pos()
         mouse_x = mouse_pos.x() - self._legend_border - self._padding
         mouse_y = mouse_pos.y() - self._padding
 
-        # Convert to coordinate range using current axis scales
-        local_x = max(0, min(self.curve.x_max, mouse_x / float(self.width() - self._legend_border - 2 * self._padding) * self.curve.x_max))
+        graph_width = self.width() - self._legend_border - 2 * self._padding
+        graph_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
+
+        local_x = max(
+            0,
+            min(
+                self.curve.x_max,
+                mouse_x / float(graph_width) * self.curve.x_max,
+            ),
+        )
         local_y = max(
             self.curve.y_min,
             min(
                 self.curve.y_max,
-                (1 - mouse_y / float(self.height() - self._legend_border - self._control_bar_height - 2 * self._padding))
-                * (self.curve.y_max - self.curve.y_min)
-                + self.curve.y_min,
+                (1 - mouse_y / float(graph_height)) * (self.curve.y_max - self.curve.y_min) + self.curve.y_min,
             ),
         )
 
-        # Add new control point
+        # Perform modification first
         self.curve.add_cv_point(local_x, local_y)
         self.update()
+        # Save state AFTER adding
+        self._push_state("Add point")
+        self._update_window_title()
 
-    def mouseMoveEvent(self, QMouseEvent):
-        """Internal mouse-move handler"""
-        if self._drag_point is not None:
-            # Get current mouse position in screen coordinates
-            mouse_pos = QMouseEvent.pos()
+    def mouseMoveEvent(self, a0):
+        if self._drag_point is None:
+            return
+        idx, (ox, oy) = self._drag_point
+        mouse_pos = a0.pos()
 
-            # Apply the drag offset to get the desired point position in screen coordinates
-            point_screen_x = mouse_pos.x() + self._drag_point[1][0]
-            point_screen_y = mouse_pos.y() + self._drag_point[1][1]
+        # Screen position for point (apply stored offset)
+        point_screen_x = mouse_pos.x() + ox
+        point_screen_y = mouse_pos.y() + oy
 
-            # Convert from screen coordinates to graph coordinates
-            graph_x = point_screen_x - self._legend_border - self._padding
-            graph_y = point_screen_y - self._padding
+        graph_x = point_screen_x - self._legend_border - self._padding
+        graph_y = point_screen_y - self._padding
 
-            # Get graph dimensions
-            graph_width = self.width() - self._legend_border - 2 * self._padding
-            graph_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
+        graph_width = self.width() - self._legend_border - 2 * self._padding
+        graph_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
 
-            # Convert to data coordinates using current axis scales
-            # X coordinate: normalize by graph width, then scale to x_max
-            local_x = max(0, min(self.curve.x_max, graph_x / float(graph_width) * self.curve.x_max))
-
-            # Y coordinate: flip Y axis (screen Y increases downward, data Y increases upward)
-            # then normalize and scale to y range
-            normalized_y = 1.0 - (graph_y / float(graph_height))
-            local_y = max(self.curve.y_min, min(self.curve.y_max, normalized_y * (self.curve.y_max - self.curve.y_min) + self.curve.y_min))
-
-            # Update the control point
-            self.curve.set_cv_value(self._drag_point[0], local_x, local_y)
-
-            # Rebuild curve and update display
-            self.curve.build_curve()
-            self.update()
-
-    def _get_y_value_for(self, local_value):
-        """Converts a value from y_min-y_max to canvas height"""
-        y_range = self.curve.y_max - self.curve.y_min
-        normalized_value = (local_value - self.curve.y_min) / y_range  # Normalize to 0-1
-        normalized_value = max(0, min(1.0, 1.0 - normalized_value))  # Flip Y and clamp
-        local_value = (
-            normalized_value * (self.height() - self._legend_border - self._control_bar_height - 2 * self._padding) + self._padding
+        local_x = max(0, min(self.curve.x_max, graph_x / float(graph_width) * self.curve.x_max))
+        normalized_y = 1.0 - (graph_y / float(graph_height))
+        local_y = max(
+            self.curve.y_min,
+            min(
+                self.curve.y_max,
+                normalized_y * (self.curve.y_max - self.curve.y_min) + self.curve.y_min,
+            ),
         )
-        return local_value
+
+        self.curve.set_cv_value(idx, local_x, local_y)
+        self.curve.build_curve()
+        self.update()
+
+    # ------------------------------------------------------------------
+    # Coordinate helpers
+    # ------------------------------------------------------------------
+    def _get_y_value_for(self, local_value):
+        y_range = self.curve.y_max - self.curve.y_min
+        normalized_value = (local_value - self.curve.y_min) / y_range
+        normalized_value = max(0, min(1.0, 1.0 - normalized_value))
+        return normalized_value * (self.height() - self._legend_border - self._control_bar_height - 2 * self._padding) + self._padding
 
     def _get_x_value_for(self, local_value):
-        """Converts a value from 0-x_max to canvas width"""
-        normalized_value = local_value / self.curve.x_max  # Normalize to 0-1
+        normalized_value = local_value / self.curve.x_max
         normalized_value = max(0, min(1.0, normalized_value))
-        local_value = normalized_value * (self.width() - self._legend_border - 2 * self._padding) + self._legend_border + self._padding
-        return local_value
+        return normalized_value * (self.width() - self._legend_border - 2 * self._padding) + self._legend_border + self._padding
 
+    # ------------------------------------------------------------------
+    # Drawing
+    # ------------------------------------------------------------------
     def _draw(self, painter):
-        """Internal method to draw the widget"""
-
         canvas_width = self.width() - self._legend_border - 2 * self._padding
         canvas_height = self.height() - self._legend_border - self._control_bar_height - 2 * self._padding
 
-        # Draw field background
         palette = self.palette()
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Mid))
         painter.setBrush(palette.color(QtGui.QPalette.ColorRole.Base))
         painter.drawRect(0, 0, self.width() - 1, self.height() - 1)
 
-        # Draw legend
-
-        # Compute amount of horizontal / vertical lines
-        num_vert_lines = 7  # Adjustable based on x_max
+        # Grid lines
+        num_vert_lines = 7
         line_spacing_x = (self.width() - self._legend_border - 2 * self._padding) / 7.0
         line_spacing_y = (self.height() - self._legend_border - self._control_bar_height - 2 * self._padding) / 10.0
-        num_horiz_lines = 11  # Adjustable based on y range
+        num_horiz_lines = 11
 
-        # Draw vertical lines
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Window))
         for i in range(num_vert_lines + 1):
             line_pos = i * line_spacing_x + self._legend_border + self._padding
             painter.drawLine(int(line_pos), self._padding, int(line_pos), canvas_height + self._padding)
 
-        # Draw horizontal lines
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Window))
         for i in range(num_horiz_lines):
             line_pos = canvas_height - i * line_spacing_y + self._padding
             painter.drawLine(self._legend_border, int(line_pos), self.width(), int(line_pos))
 
-        # Draw vertical legend labels (Y-axis values)
+        # Y axis labels
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Text))
         y_range = self.curve.y_max - self.curve.y_min
         for i in range(num_horiz_lines):
@@ -289,7 +433,7 @@ class CurveWidget(QtWidgets.QWidget):
             value = int(self.curve.y_min + (y_range * i / (num_horiz_lines - 1)))
             painter.drawText(6, int(line_pos + 3), str(value))
 
-        # Draw horizontal legend labels (X-axis values)
+        # X axis labels
         for i in range(num_vert_lines + 1):
             line_pos = i * line_spacing_x + self._legend_border + self._padding
             offpos_x = -14
@@ -298,57 +442,54 @@ class CurveWidget(QtWidgets.QWidget):
             elif i == num_vert_lines:
                 offpos_x = -33
             value = int(self.curve.x_max * i / num_vert_lines)
-            painter.drawText(int(line_pos + offpos_x), canvas_height + self._padding + 18, str(value))
+            painter.drawText(
+                int(line_pos + offpos_x),
+                canvas_height + self._padding + 18,
+                str(value),
+            )
 
-        # Draw control bar background
+        # Control bar background
         control_bar_y = canvas_height + self._padding + 25
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Mid))
         painter.setBrush(palette.color(QtGui.QPalette.ColorRole.Window))
         painter.drawRect(0, control_bar_y, self.width(), self._control_bar_height)
 
-        # Position control widgets
         self._position_controls(control_bar_y)
 
-        # Draw curve as straight lines between control points
+        # Curve lines
         painter.setPen(palette.color(QtGui.QPalette.ColorRole.Text))
-        cv_points = self.curve.get_cv_points()
-
-        # Sort points by x coordinate for drawing
-        sorted_points = sorted(cv_points, key=lambda v: v[0])
-
-        # Draw lines between consecutive control points
+        sorted_points = sorted(self.curve.get_cv_points(), key=lambda v: v[0])
         for i in range(len(sorted_points) - 1):
             x1, y1 = sorted_points[i]
             x2, y2 = sorted_points[i + 1]
+            painter.drawLine(
+                int(self._get_x_value_for(x1)),
+                int(self._get_y_value_for(y1)),
+                int(self._get_x_value_for(x2)),
+                int(self._get_y_value_for(y2)),
+            )
 
-            # Convert to screen coordinates
-            screen_x1 = self._get_x_value_for(x1)
-            screen_y1 = self._get_y_value_for(y1)
-            screen_x2 = self._get_x_value_for(x2)
-            screen_y2 = self._get_y_value_for(y2)
-
-            painter.drawLine(int(screen_x1), int(screen_y1), int(screen_x2), int(screen_y2))
-
-        # Draw the CV points of the curve
+        # Points
         painter.setBrush(palette.color(QtGui.QPalette.ColorRole.Base))
-
-        for cv_index, (x, y) in enumerate(self.curve.get_cv_points()):
+        for idx, (x, y) in enumerate(self.curve.get_cv_points()):
             offs_x = self._get_x_value_for(x)
             offs_y = self._get_y_value_for(y)
-
-            if self._selected_point == cv_index:
+            if self._selected_point == idx:
                 painter.setPen(palette.color(QtGui.QPalette.ColorRole.Highlight))
             else:
                 painter.setPen(palette.color(QtGui.QPalette.ColorRole.Dark))
             painter.drawRect(
-                int(offs_x - self._cv_point_size), int(offs_y - self._cv_point_size), 2 * self._cv_point_size, 2 * self._cv_point_size
+                int(offs_x - self._cv_point_size),
+                int(offs_y - self._cv_point_size),
+                2 * self._cv_point_size,
+                2 * self._cv_point_size,
             )
 
+    # ------------------------------------------------------------------
+    # Control positioning
+    # ------------------------------------------------------------------
     def _position_controls(self, y_pos):
-        """Position the control widgets at the bottom"""
         x_offset = 10
-
-        # X Max control
         self.x_max_label.setParent(self)
         self.x_max_label.move(x_offset, y_pos + 10)
         self.x_max_label.show()
@@ -358,7 +499,6 @@ class CurveWidget(QtWidgets.QWidget):
         self.x_max_spinbox.resize(80, 25)
         self.x_max_spinbox.show()
 
-        # Y Min control
         x_offset += 150
         self.y_min_label.setParent(self)
         self.y_min_label.move(x_offset, y_pos + 10)
@@ -369,7 +509,6 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_min_spinbox.resize(80, 25)
         self.y_min_spinbox.show()
 
-        # Y Max control
         x_offset += 150
         self.y_max_label.setParent(self)
         self.y_max_label.move(x_offset, y_pos + 10)

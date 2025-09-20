@@ -23,6 +23,10 @@ class Editor(QtWidgets.QMainWindow):
         self.curve_widget = CurveWidget(self)
         layout.addWidget(self.curve_widget)
 
+        # Ensure the curve widget can receive focus for keyboard shortcuts
+        self.curve_widget.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+        self.curve_widget.setFocus()
+
 
 def main():
     """Main function with proper error handling"""
