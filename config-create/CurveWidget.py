@@ -83,6 +83,7 @@ class CurveWidget(QtWidgets.QWidget):
         super().__init__(parent)
 
         self.curve = Curve()
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
 
         # Widget render constants
         self._cv_point_size = 6
@@ -203,9 +204,9 @@ class CurveWidget(QtWidgets.QWidget):
         if redo_available:
             status_parts.append("Ctrl+Shift+Z: Redo")
         if status_parts:
-            title = f"{base_title} - {' | '.join(status_parts)} | Right-click to delete points"
+            title = f"{base_title} - {' | '.join(status_parts)} | Right-click to delete points | Delete: Remove selected point"
         else:
-            title = f"{base_title} - Right-click to delete points"
+            title = f"{base_title} - Right-click to delete points | Delete: Remove selected point"
         parent_window.setWindowTitle(title)
 
     # ------------------------------------------------------------------
@@ -295,6 +296,7 @@ class CurveWidget(QtWidgets.QWidget):
         qp.end()
 
     def mousePressEvent(self, a0):
+        self.setFocus()
         self._drag_point = None
         self._pre_drag_points = None
         self._selected_point = None
@@ -345,6 +347,11 @@ class CurveWidget(QtWidgets.QWidget):
                 (1 - mouse_y / float(graph_height)) * (self.curve.y_max - self.curve.y_min) + self.curve.y_min,
             ),
         )
+        # Snap new point's Y to existing point Y values if close (screen-space)
+        for _, existing_y in self.curve.get_cv_points():
+            if abs(self._get_y_value_for(existing_y) - self._get_y_value_for(local_y)) <= self._cv_point_size * 2:
+                local_y = existing_y
+                break
 
         # Perform modification first
         self.curve.add_cv_point(local_x, local_y)
@@ -378,6 +385,13 @@ class CurveWidget(QtWidgets.QWidget):
                 normalized_y * (self.curve.y_max - self.curve.y_min) + self.curve.y_min,
             ),
         )
+        # Snap dragged point's Y to other points if close (exclude itself)
+        for other_idx, (_, existing_y) in enumerate(self.curve.get_cv_points()):
+            if other_idx == idx:
+                continue
+            if abs(self._get_y_value_for(existing_y) - self._get_y_value_for(local_y)) <= self._cv_point_size * 2:
+                local_y = existing_y
+                break
 
         self.curve.set_cv_value(idx, local_x, local_y)
         self.curve.build_curve()
@@ -518,3 +532,13 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_max_spinbox.move(x_offset + 50, y_pos + 8)
         self.y_max_spinbox.resize(80, 25)
         self.y_max_spinbox.show()
+
+    def keyPressEvent(self, a0):
+        # Allow deleting the currently selected point with Delete or Backspace
+        if a0 is None:
+            return
+        if a0.key() in (QtCore.Qt.Key.Key_Delete, QtCore.Qt.Key.Key_Backspace):
+            if self._selected_point is not None:
+                self._delete_point(self._selected_point)
+                return
+        super().keyPressEvent(a0)
