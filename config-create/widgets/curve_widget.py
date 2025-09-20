@@ -211,6 +211,20 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_max_spinbox.setValue(1200)
         self.y_max_spinbox.valueChanged.connect(self._update_scales)
 
+        # Copy Points button (copies points as (x1,y1),(x2,y2)...)
+        self.copy_points_button: QtWidgets.QPushButton = QtWidgets.QPushButton("Copy Points")
+        self.copy_points_button.setToolTip("Copy points as (x1,y1),(x2,y2)")
+
+        def _do_copy():
+            pts = sorted(self.curve.get_cv_points(), key=lambda p: p[0])
+
+            def fmt(v: float) -> str:
+                return str(int(v)) if float(v).is_integer() else f"{v:.2f}"
+
+            QtWidgets.QApplication.clipboard().setText(",".join(f"({fmt(x)},{fmt(y)})" for x, y in pts))
+
+        self.copy_points_button.clicked.connect(_do_copy)
+
         # Help / instruction label (populated in _update_window_title)
         self.help_label: QtWidgets.QLabel = QtWidgets.QLabel()
         self.help_label.setText(self._build_help_text())
@@ -494,6 +508,13 @@ class CurveWidget(QtWidgets.QWidget):
         self.y_max_spinbox.move(x_offset + 50, y_pos + 8)
         self.y_max_spinbox.resize(80, 25)
         self.y_max_spinbox.show()
+
+        # Copy Points button
+        x_offset += 150
+        self.copy_points_button.setParent(self)
+        self.copy_points_button.move(x_offset, y_pos + 8)
+        self.copy_points_button.resize(110, 25)
+        self.copy_points_button.show()
 
         # Position help label in a separate bar below the control bar
         self.help_label.setParent(self)

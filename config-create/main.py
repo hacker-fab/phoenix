@@ -60,18 +60,22 @@ class PointsTable(QtWidgets.QTableWidget):
     Table displaying control points:
 
     Columns:
-        0 - Index (sorted order)
-        1 - X position (editable)
-        2 - Y position (editable)
-        3 - ΔY from previous point (read only)
+    0 - Index (sorted order)
+    1 - X position (editable)
+    2 - Y position (editable)
+    3 - ΔX from previous point (read only)
+    4 - ΔY from previous point (read only)
+    5 - Slope (ΔY/ΔX from previous point)
     """
 
     COL_INDEX = 0
     COL_X = 1
     COL_Y = 2
-    COL_DY = 3
+    COL_DX = 3
+    COL_DY = 4
+    COL_SLOPE = 5
 
-    headers = ["Idx", "X", "Y", "ΔY"]
+    headers = ["Idx", "X", "Y", "ΔX", "ΔY", "Slope"]
 
     pointEdited = QtCore.pyqtSignal(int, float, float)  # row index (sorted), new x, new y
 
@@ -86,9 +90,13 @@ class PointsTable(QtWidgets.QTableWidget):
         self.setAlternatingRowColors(True)
         self._suppress_item_handler = False
 
-        # Narrow index / delta columns
-        self.setColumnWidth(self.COL_INDEX, 40)
+        # Narrow index / delta / slope columns
+        self.setColumnWidth(self.COL_INDEX, 60)
+        self.setColumnWidth(self.COL_X, 60)
+        self.setColumnWidth(self.COL_Y, 60)
+        self.setColumnWidth(self.COL_DX, 60)
         self.setColumnWidth(self.COL_DY, 60)
+        self.setColumnWidth(self.COL_SLOPE, 60)
 
         self.itemChanged.connect(self._handle_item_changed)
 
@@ -112,10 +120,28 @@ class PointsTable(QtWidgets.QTableWidget):
                 y_item.setFlags(self._editable_flags())
                 self.setItem(row, self.COL_Y, y_item)
 
-                dy_value = 0.0 if row == 0 else (y - points[row - 1][1])
+                prev_x, prev_y = (x, y) if row == 0 else points[row - 1]
+
+                # ΔX (difference from previous X)
+                dx_value = 0.0 if row == 0 else (x - prev_x)
+                dx_item = QtWidgets.QTableWidgetItem(self._format_float(dx_value))
+                dx_item.setFlags(QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled)
+                self.setItem(row, self.COL_DX, dx_item)
+
+                # ΔY (difference from previous Y)
+                dy_value = 0.0 if row == 0 else (y - prev_y)
                 dy_item = QtWidgets.QTableWidgetItem(self._format_float(dy_value))
                 dy_item.setFlags(QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled)
                 self.setItem(row, self.COL_DY, dy_item)
+
+                # Slope (ΔY / ΔX) relative to previous point (color coded)
+                if row == 0 or dx_value == 0:
+                    slope_value = 0.0
+                else:
+                    slope_value = dy_value / dx_value
+                slope_item = QtWidgets.QTableWidgetItem(self._format_float(slope_value))
+                slope_item.setFlags(QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled)
+                self.setItem(row, self.COL_SLOPE, slope_item)
         finally:
             self._suppress_item_handler = False
 
@@ -207,7 +233,7 @@ class Editor(QtWidgets.QMainWindow):
 
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
-        splitter.setSizes([260, 640])
+        splitter.setSizes([360, 640])
 
         # Connections
         self.curve_widget.pointsChanged.connect(self._refresh_table_from_curve)
