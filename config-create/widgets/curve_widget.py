@@ -260,6 +260,10 @@ class CurveWidget(QtWidgets.QWidget):
             return
         if self._drag_point is not None and self._pre_drag_points is not None:
             if self.curve._cv_points != self._pre_drag_points:
+                # Defer sorting until drag end to avoid index changes during drag
+                # that previously caused the actively moved point to switch and
+                # appear as though points were deleted when crossing neighbors.
+                self.curve.build_curve()
                 self._push_state("Move point")
                 self._update_window_title()
         self._drag_point = None
@@ -333,7 +337,9 @@ class CurveWidget(QtWidgets.QWidget):
                 break
 
         self.curve.set_cv_value(idx, local_x, local_y)
-        self.curve.build_curve()
+        # Do NOT sort here; sorting during drag changes indices and can
+        # cause the dragged point reference to shift to another point.
+        # We sort once on mouse release instead.
         self.update()
 
     # ------------------------------------------------------------------
