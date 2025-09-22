@@ -187,19 +187,17 @@ class FaultError(Exception):
 	pass
 
 	
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    csPin = 46
+    misoPin = 10 # SDO
+    mosiPin = 9 #SDI
+    clkPin = 11 #SCK
 
-import max31856
-csPin = 46
-misoPin = 10 # SDO
-mosiPin = 9 #SDI
-clkPin = 11 #SCK
-max = max31856.max31856(csPin,misoPin,mosiPin,clkPin)
-thermoTempC = max.readThermocoupleTemp()
-thermoTempF = (thermoTempC * 9.0/5.0) + 32
-print ("Thermocouple Temp: %f degF" % thermoTempF)
-print ("Thermocouple Temp: %f degC" % thermoTempC)
-juncTempC = max.readJunctionTemp()
-juncTempF = (juncTempC * 9.0/5.0) + 32
-print ("Cold Junction Temp: %f degF" % juncTempF)
-print ("Cold Junction Temp: %f degC" % juncTempC)time.sleep(0.5)
+    max = max31856(csPin,misoPin,mosiPin,clkPin)
+     
+    while True:
+        temp_thermo = max.readThermocoupleTemp()
+        temp_junction = max.readJunctionTemp()
+        print(f"Thermocouple temp: {temp_thermo}, Cold junction temp: {temp_junction}")
+
+        time.sleep(0.1)
