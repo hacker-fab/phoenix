@@ -188,12 +188,13 @@ class FaultError(Exception):
 
 	
 if __name__ == "__main__":
-    csPin = 46
-    misoPin = 10 # SDO
-    mosiPin = 9 #SDI
-    clkPin = 11 #SCK
+    # master / slave are from the perspective of the MAX31856
+    PIN_CS = 46
+    PIN_MISO = 10 # SDO trace
+    PIN_MOSI = 9 # SDI trace
+    PIN_CLK = 11
 
-    max = max31856(csPin,misoPin,mosiPin,clkPin)
+    max = max31856(PIN_CS, PIN_MISO, PIN_MOSI, PIN_CLK)
      
     while True:
         temp_thermo = max.readThermocoupleTemp()
