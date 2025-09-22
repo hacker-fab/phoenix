@@ -5,9 +5,9 @@ import time
 # GPIO Pin Definitions
 # =========================
 
-ENC_A_PIN = 0       # Rotary encoder pin A
-ENC_B_PIN = 1       # Rotary encoder pin B
-ENC_BTN_PIN = 2     # Rotary encoder pin SW, aka push-button
+ENC_A_PIN = 18       # Rotary encoder pin A
+ENC_B_PIN = 17       # Rotary encoder pin B
+ENC_BTN_PIN = 4     # Rotary encoder pin SW, aka push-button
 TIMER_ID = 0        # Timer ID used for button debounce
 
 # =========================
