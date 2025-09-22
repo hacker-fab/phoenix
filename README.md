@@ -57,3 +57,5 @@ esptool --baud 460800 write-flash 0 images/ESP32_GENERIC_S3-SPIRAM_OCT-20250809-
 mpremote
 mpremote connect /dev/ttyUSB0 fs cp main.py :
 ```
+- use the UART port (left side) for flashing
+- use the USB port (right side) when using mpremote
