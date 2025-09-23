@@ -87,12 +87,6 @@ class CurveWidget(QtWidgets.QWidget):
         if DEBUG_UNDO:
             print(f"UNDO DEBUG: push '{action_name}' -> index {self._history_index} / {len(self._history)}")
 
-    # Backwards compatibility (legacy code/tests may call _save_state before modifying)
-    def _save_state(self, action_name: str = "Unknown") -> None:
-        """Deprecated: kept for backward compatibility.
-        Unlike legacy behavior we now snapshot current state (post-mod)."""
-        self._push_state(action_name)
-
     def _undo(self) -> None:
         if self._history_index > 0:
             self._history_index -= 1
