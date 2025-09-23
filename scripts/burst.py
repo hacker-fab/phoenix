@@ -1,37 +1,67 @@
 from machine import Pin, Timer
 import time
 
-# === CONFIGURATION ===
-relay_pin = Pin(5, Pin.OUT)    # SSR control pin
-period_cycles = 20             # Number of AC cycles in a burst period
-duty_percent = 75              # Power level (0 to 100%)
+class BurstFire:
+    _DEFAULT_TIMER_ID = 0
+    def __init__(self, output_pin_num, freq_hz=60, period_cycles=20, duty_percent=0.5):
+        """
+        Initialize burst fire control.
+        
+        :param output_pin_num: GPIO pin connected to SSR
+        :param freq_hz: Mains frequency (default 60Hz)
+        :param period_cycles: Number of AC cycles in a control period
+        :param duty_percent: Initial power output (0.0 -> 1.0)
+        """
+        self.output_pin = Pin(output_pin_num, Pin.OUT)
+        self.freq_hz = freq_hz
+        self.period_cycles = period_cycles
+        self.timer = Timer(self._DEFAULT_TIMER_ID)
+        
+        self.duty_percent = duty_percent
+        self.on_cycles = int(self.period_cycles * self.duty_percent)
+        self.cycle_counter = 0
 
-# === DERIVED VARIABLES ===
-on_cycles = int(period_cycles * duty_percent / 100)
-cycle_counter = 0              # Tracks where we are in the burst
+        self._start_timer()
 
-# === 60Hz CLOCK TIMER ===
-def on_60hz_tick(t):
-    global cycle_counter
+    def _start_timer(self):
+        """Start the periodic timer to simulate 60Hz zero-cross ticks."""
+        self.timer.init(freq=self.freq_hz, mode=Timer.PERIODIC, callback=self._on_tick)
 
-    # Determine if we're in ON or OFF portion of the burst
-    if cycle_counter < on_cycles:
-        relay_pin.value(1)  # Turn SSR ON
-    else:
-        relay_pin.value(0)  # Turn SSR OFF
+    def _on_tick(self, t):
+        """Called every 1/freq_hz seconds to simulate AC cycle edges."""
+        if self.cycle_counter < self.on_cycles:
+            self.output_pin.value(1)  # SSR ON
+        else:
+            self.output_pin.value(0)  # SSR OFF
 
-    # Advance the cycle counter
-    cycle_counter += 1
-    if cycle_counter >= period_cycles:
-        cycle_counter = 0
+        self.cycle_counter += 1
+        if self.cycle_counter >= self.period_cycles:
+            self.cycle_counter = 0
 
-# === SETUP TIMER TO TICK AT 60Hz ===
-# 1000 ms / 60 Hz = ~16.67ms per cycle
-timer = Timer(1)
-timer.init(freq=60, mode=Timer.PERIODIC, callback=on_60hz_tick)
+    def set_duty(self, percent):
+        """
+        Change power level.
+        
+        :param percent: Power output (0.0 -> 1.0)
+        """
+        self.duty_percent = max(0, min(1, percent))
+        self.on_cycles = int(self.period_cycles * self.duty_percent)
 
-# === MAIN LOOP ===
-while True:
-    # Do other stuff here, like update temperature or UI
-    time.sleep(1)
+    def stop(self):
+        """Stops the output and disables the timer."""
+        self.timer.deinit()
+        self.output_pin.value(0)
 
+    def start(self):
+        """Restart the burst control."""
+        self._start_timer()
+
+if __name__ == "__main__":
+    PIN_SSR = 5
+    AC_FREQ = 60
+    NUM_CYCLES = 20
+    DUTY = 0.5
+    bf = BurstFire(output_pin_num=PIN_SSR, freq_hz=AC_FREQ, period_cycles=NUM_CYCLES, duty_percent=DUTY)
+
+    while True:
+        time.sleep(1)
