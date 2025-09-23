@@ -11,17 +11,7 @@ from widgets.curve_widget import CurveWidget as BaseCurveWidget
 
 
 class CurveWidget(BaseCurveWidget):
-    """
-    Thin subclass of the existing CurveWidget that emits signals whenever the
-    set of control points changes or the selected point changes.
-
-    We hook into _push_state (called after each logical modification) and
-    _restore_state (used by undo/redo) to broadcast changes to outside
-    components like the sidebar table.
-
-    NOTE: We deliberately keep the parent widget logic untouched; only signal
-    emission is added here to avoid editing the original file.
-    """
+    """Subclass that emits signals when control points or selection change."""
 
     pointsChanged = QtCore.pyqtSignal()  # Emitted after points list changes
     selectionChanged = QtCore.pyqtSignal(int)  # Emitted with selected point index or -1
@@ -56,17 +46,7 @@ class CurveWidget(BaseCurveWidget):
 
 
 class PointsTable(QtWidgets.QTableWidget):
-    """
-    Table displaying control points:
-
-    Columns:
-    0 - Index (sorted order)
-    1 - X position (editable)
-    2 - Y position (editable)
-    3 - ΔX from previous point (read only)
-    4 - ΔY from previous point (read only)
-    5 - Slope (ΔY/ΔX from previous point)
-    """
+    """Table of control points: Idx, X, Y, ΔX, ΔY, Slope."""
 
     COL_INDEX = 0
     COL_X = 1
@@ -101,9 +81,7 @@ class PointsTable(QtWidgets.QTableWidget):
         self.itemChanged.connect(self._handle_item_changed)
 
     def populate(self, points: list[list[float]]) -> None:
-        """
-        Populate table with sorted points.
-        """
+        # Populate table with sorted points
         self._suppress_item_handler = True
         try:
             self.setRowCount(len(points))
@@ -146,9 +124,7 @@ class PointsTable(QtWidgets.QTableWidget):
             self._suppress_item_handler = False
 
     def select_point(self, sorted_index: int) -> None:
-        """
-        Select the table row corresponding to the given sorted index.
-        """
+        # Select row by sorted index
         if 0 <= sorted_index < self.rowCount():
             self.setCurrentCell(sorted_index, self.COL_INDEX)
 
@@ -189,9 +165,7 @@ class PointsTable(QtWidgets.QTableWidget):
 
 
 class Editor(QtWidgets.QMainWindow):
-    """
-    Main window hosting the curve editor and the sidebar table.
-    """
+    """Main window hosting curve widget + sidebar table."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -267,11 +241,7 @@ class Editor(QtWidgets.QMainWindow):
                     break
 
     def _handle_table_edit(self, sorted_row: int, new_x: float, new_y: float) -> None:
-        """
-        Apply edited X/Y back to underlying curve.
-
-        sorted_row: row index in sorted order (0..n-1)
-        """
+        # Apply edited X/Y back to underlying curve (sorted index)
         points = self._sorted_points()
         if not (0 <= sorted_row < len(points)):
             return
@@ -294,9 +264,7 @@ class Editor(QtWidgets.QMainWindow):
         self.curve_widget.pointsChanged.emit()
 
     def _handle_add_point(self) -> None:
-        """
-        Add a point halfway between currently selected and next (or end).
-        """
+        # Add point midway between current and next (or append after last)
         sorted_pts = self._sorted_points()
         if not sorted_pts:
             self.curve_widget.curve.add_cv_point(0.0, self.curve_widget.curve.y_min)
@@ -328,9 +296,7 @@ class Editor(QtWidgets.QMainWindow):
         self.curve_widget.pointsChanged.emit()
 
     def _handle_remove_selected(self) -> None:
-        """
-        Remove selected point (in table sorted order) if more than one point exists.
-        """
+        # Remove selected point if more than one remains
         row = self.table.currentRow()
         if row < 0:
             return
@@ -345,11 +311,7 @@ class Editor(QtWidgets.QMainWindow):
         self.curve_widget._push_state("Delete point (button)")
         self.curve_widget.pointsChanged.emit()
 
-    # ------------------------------------------------------------------ #
-    # Close event / convenience
-    # ------------------------------------------------------------------ #
-    def closeEvent(self, a0: QtGui.QCloseEvent | None) -> None:  # type: ignore[override]
-        super().closeEvent(a0)
+    # (Removed unused closeEvent override)
 
 
 def main() -> int:

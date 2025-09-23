@@ -9,9 +9,6 @@ from typing import TypedDict
 
 from models.curve import Curve
 
-# Set to True to enable debug logging for state saves
-DEBUG_UNDO = False
-
 
 class Snapshot(TypedDict):
     cv_points: list[list[float]]
@@ -21,7 +18,7 @@ class Snapshot(TypedDict):
 
 
 class CurveWidget(QtWidgets.QWidget):
-    """Resizable widget displaying an editable curve with undo/redo support."""
+    # Editable curve widget with undo/redo support (short description).
 
     def __init__(self, parent: QtWidgets.QWidget | None = None) -> None:
         super().__init__(parent)
@@ -60,7 +57,7 @@ class CurveWidget(QtWidgets.QWidget):
     # Undo/Redo infrastructure
     # ------------------------------------------------------------------
     def _capture_state(self) -> Snapshot:
-        """Return a deep copy snapshot of current logical state."""
+        # Deep copy snapshot of current logical state
         return Snapshot(
             cv_points=copy.deepcopy(self.curve._cv_points),
             x_max=self.curve.x_max,
@@ -68,40 +65,34 @@ class CurveWidget(QtWidgets.QWidget):
             y_max=self.curve.y_max,
         )
 
-    def _states_equal(self, a: Snapshot, b: Snapshot) -> bool:
-        return a["cv_points"] == b["cv_points"] and a["x_max"] == b["x_max"] and a["y_min"] == b["y_min"] and a["y_max"] == b["y_max"]
-
     def _push_state(self, action_name: str = "Unknown") -> None:
-        """Record current state AFTER a modification."""
+        # Record current state AFTER a modification (simplified, no debug)
         current = self._capture_state()
-        # Truncate redo branch if we are not at the end
         if self._history_index < len(self._history) - 1:
             self._history = self._history[: self._history_index + 1]
-        # Avoid duplicates
-        if self._history and self._states_equal(current, self._history[-1]):
-            if DEBUG_UNDO:
-                print(f"UNDO DEBUG: skip duplicate after '{action_name}'")
-            return
+        if self._history:
+            last = self._history[-1]
+            if (
+                current["cv_points"] == last["cv_points"]
+                and current["x_max"] == last["x_max"]
+                and current["y_min"] == last["y_min"]
+                and current["y_max"] == last["y_max"]
+            ):
+                return
         self._history.append(current)
         self._history_index = len(self._history) - 1
-        if DEBUG_UNDO:
-            print(f"UNDO DEBUG: push '{action_name}' -> index {self._history_index} / {len(self._history)}")
 
     def _undo(self) -> None:
         if self._history_index > 0:
             self._history_index -= 1
             self._restore_state(self._history[self._history_index])
             self._update_window_title()
-            if DEBUG_UNDO:
-                print(f"UNDO DEBUG: undo -> index {self._history_index} / {len(self._history)}")
 
     def _redo(self) -> None:
         if self._history_index < len(self._history) - 1:
             self._history_index += 1
             self._restore_state(self._history[self._history_index])
             self._update_window_title()
-            if DEBUG_UNDO:
-                print(f"UNDO DEBUG: redo -> index {self._history_index} / {len(self._history)}")
 
     def _restore_state(self, state: Snapshot) -> None:
         self._restoring_state = True
