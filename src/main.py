@@ -23,7 +23,7 @@ def main() -> None:
     # Define a sample piecewise linear profile:
     # (time_in_seconds, temperature_setpoint)
     heat_profile = [
-        (0, 25), (100, 30), (200, 30),
+        (0, 25), (300, 40), (600, 25),
     ]
 
     dt = 0.1
