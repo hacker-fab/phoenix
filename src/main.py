@@ -1,30 +1,31 @@
-import matplotlib.pyplot as plt
-from sim import simulate_profile, ThermalModel
-from profile import validate_profile_rate
+import time
 
+from profile import validate_profile_rate, piecewise_linear_setpoint
+from burst import BurstFire
+from max31856 import Max31856
+from pid import SimplePID
+
+# MAX31856
+PIN_CS = 46
+PIN_MISO = 10 # SDO trace
+PIN_MOSI = 9 # SDI trace
+PIN_CLK = 11
+
+# Burst
+PIN_SSR = 5
+AC_FREQ = 60
+NUM_CYCLES = 20
+DUTY = 0.5
+
+DT_TARGET = 0.1
 
 def main() -> None:
     # Define a sample piecewise linear profile:
     # (time_in_seconds, temperature_setpoint)
     heat_profile = [
-        (0, 25.0),  # Start at 25 °C
-        (300, 200),  # By t=300s, ramp to 200 °C
-        (600, 500),  # Then ramp to 500 °C by t=600s
-        (900, 800),  # Ramp to 800 °C by t=900s
-        (1200, 1000),  # Finally ramp to 1000 °C by t=1200s
-        (1400, 1000),
-        (1500, 900),
-        (1800, 900),
-        (2000, 600),
+        (0, 25), (100, 30), (200, 30),
     ]
 
-    model = ThermalModel(
-        ambient=25.0,
-        max_heating_rate=2.0,  # °C/s at full power
-        cooling_coeff=0.001,
-    )
-
-    sim_time = 3000.0  # simulate for 1800 seconds (30 minutes)
     dt = 0.1
 
     # validate profile
@@ -37,34 +38,36 @@ def main() -> None:
     else:
         print("Profile is valid: all segments are within the allowed ramp rate.")
 
-    times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(heat_profile, model, sim_time, dt)
+    # ------------- copied from test_sim.py --------------
 
-    # Plot temperature vs. time and the setpoint
-    plt.figure()
-    plt.plot(times, temperatures, label="Temperature", color="blue")
-    plt.plot(times, setpoints, label="Setpoint", color="orange", linestyle="--")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Temperature (°C)")
-    plt.title("Temperature vs. Setpoint")
-    plt.legend()
-    plt.show()
+    rate_limit = 30.0
 
-    # Plot PWM vs. time
-    plt.figure()
-    plt.plot(times, pwm_values, label="PWM", color="red")
-    plt.xlabel("Time (s)")
-    plt.ylabel("PWM [0..1]", color="red")
-    plt.title("Heater PWM")
-    plt.show()
+    # 1) Profile validation
+    violations = validate_profile_rate(heat_profile, rate_limit, rate_unit="deg/min")
+    assert not violations, f"Profile rate violations: {violations}"
 
-    # Plot PID output vs. time
-    plt.figure()
-    plt.plot(times, pid_outputs, label="PID Output", color="purple")
-    plt.xlabel("Time (s)")
-    plt.ylabel("PID Output (unclamped)")
-    plt.title("Raw PID Output")
-    plt.show()
+    # 2) Run simulation
+    epoch = time.perf_counter()
+    prev_t = 0
+    max31856 = Max31856(PIN_CS, PIN_MISO, PIN_MOSI, PIN_CLK)
+    pid = SimplePID()
+    bf = BurstFire(output_pin_num=PIN_SSR, freq_hz=AC_FREQ, period_cycles=NUM_CYCLES, duty_percent=DUTY)
 
+
+    while True:
+        now = time.perf_counter() - epoch
+        dt = now - prev_t
+        prev_t = now
+
+        goal = piecewise_linear_setpoint(now, heat_profile)
+        temp = max31856.readThermocoupleTemp()
+        output = pid.compute(goal, temp, dt)
+
+        print("temp:", temp)
+        print("output:", output )
+        bf.set_duty(output)
+
+        time.sleep(max(0.0, DT_TARGET - (time.perf_counter() - now)))
 
 if __name__ == "__main__":
     main()
