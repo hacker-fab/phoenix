@@ -43,6 +43,7 @@ def test_profile_convergence_and_save_plots(
     times, temperatures, setpoints, pwm_values, pid_outputs = simulate_profile(
         profile, model, sim_time, dt
     )
+    print(pid_outputs)
 
     # 3) Convergence assertion
     final_error = max(abs(a - b) for a, b in zip(temperatures, setpoints))
