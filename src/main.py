@@ -47,7 +47,7 @@ def main() -> None:
     assert not violations, f"Profile rate violations: {violations}"
 
     # 2) Run simulation
-    epoch = time.perf_counter()
+    epoch = time.ticks_ms()
     prev_t = 0
     max31856 = Max31856(PIN_CS, PIN_MISO, PIN_MOSI, PIN_CLK)
     pid = SimplePID()
@@ -55,7 +55,7 @@ def main() -> None:
 
 
     while True:
-        now = time.perf_counter() - epoch
+        now = time.ticks_ms() - epoch
         dt = now - prev_t
         prev_t = now
 
@@ -63,11 +63,11 @@ def main() -> None:
         temp = max31856.readThermocoupleTemp()
         output = pid.compute(goal, temp, dt)
 
-        print("temp:", temp)
+        print("goal:", goal, "temp:", temp)
         print("output:", output )
         bf.set_duty(output)
 
-        time.sleep(max(0.0, DT_TARGET - (time.perf_counter() - now)))
+        time.sleep(max(0.0, DT_TARGET - (time.ticks_ms() - now)))
 
 if __name__ == "__main__":
     main()
