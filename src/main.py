@@ -19,11 +19,13 @@ DUTY = 0.5
 
 DT_TARGET = 0.1
 
+MS_TO_SEC = 1000
+
 def main() -> None:
     # Define a sample piecewise linear profile:
     # (time_in_seconds, temperature_setpoint)
     heat_profile = [
-        (0, 25), (300, 40), (600, 25),
+        (0, 35), (300 * MS_TO_SEC, 60), (600 * MS_TO_SEC, 25),
     ]
 
     dt = 0.1
