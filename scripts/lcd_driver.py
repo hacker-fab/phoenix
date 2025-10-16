@@ -56,7 +56,8 @@ class LCD:
 
 def test():
     print("AS: LCD test started")
-
+    rst = Pin(RST_PIN, Pin.OUT)
+    rst.value(1)
     i2c = I2C(0, scl=Pin(SCL_PIN), sda=Pin(SDA_PIN), freq=400000)
 
     lcd = LCD()

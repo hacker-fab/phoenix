@@ -1,0 +1,7 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "PEC16-4220F-S0024")(type "KiCad")(uri "${KIPRJMOD}/Libraries/symbols/PEC16-4220F-S0024.kicad_sym")(options "")(descr ""))
+  (lib (name "TE_282837-2")(type "KiCad")(uri "${KIPRJMOD}/Libraries/symbols/TE_282837-2.kicad_sym")(options "")(descr ""))
+  (lib (name "UJ20-C-H-G-SMT-1-P16-TR")(type "KiCad")(uri "${KIPRJMOD}/Libraries/symbols/UJ20-C-H-G-SMT-1-P16-TR.kicad_sym")(options "")(descr ""))
+  (lib (name "TLV775xxPDBVR")(type "KiCad")(uri "${KIPRJMOD}/Libraries/symbols/TLV775xxPDBVR.kicad_sym")(options "")(descr ""))
+)
