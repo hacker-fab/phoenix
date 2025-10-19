@@ -17,6 +17,7 @@ class BurstFire:
         self.period_cycles = period_cycles
         self.timer = Timer(self._DEFAULT_TIMER_ID)
         
+        self.next_duty_percent = duty_percent
         self.duty_percent = duty_percent
         self.on_cycles = int(self.period_cycles * self.duty_percent)
         self.cycle_counter = 0
@@ -37,15 +38,20 @@ class BurstFire:
         self.cycle_counter += 1
         if self.cycle_counter >= self.period_cycles:
             self.cycle_counter = 0
+            self._set_duty()
 
-    def set_duty(self, percent):
+    def _set_duty(self):
         """
         Change power level.
         
         :param percent: Power output (0.0 -> 1.0)
         """
-        self.duty_percent = max(0, min(1, percent))
+        self.duty_percent = self.next_duty_percent
         self.on_cycles = int(self.period_cycles * self.duty_percent)
+
+    def set_duty(self, percent):
+        assert 0.0 <= percent <= 1.0
+        self.next_duty_percent = percent
 
     def stop(self):
         """Stops the output and disables the timer."""

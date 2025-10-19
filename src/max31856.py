@@ -26,7 +26,7 @@ import time
 import math
 import machine
 
-class max31856(object):
+class Max31856(object):
 	"""Read Temperature on the Feather HUZZAH ESP8266 from the MAX31856 chip using GPIO
 	   Connections will use the hardware SPI interface on the ESP8266 to talk to the MAX31855 sensor.
 	   Tested with: MicroPython 1.8.5 on ESP8266: esp8266-20161017-v1.8.5.bin
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     PIN_MOSI = 9 # SDI trace
     PIN_CLK = 11
 
-    max = max31856(PIN_CS, PIN_MISO, PIN_MOSI, PIN_CLK)
+    max = Max31856(PIN_CS, PIN_MISO, PIN_MOSI, PIN_CLK)
      
     while True:
         temp_thermo = max.readThermocoupleTemp()

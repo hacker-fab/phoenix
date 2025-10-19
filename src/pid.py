@@ -49,4 +49,4 @@ class SimplePID:
             print(f"[PID DEBUG] error={self.error:.2f} p={p_term:.2f} i={i_term:.2f} d={d_term:.2f} out={output:.2f}")
 
         self.prev_error = self.error
-        return output
+        return clamp(output, 0.0, 1.0)
