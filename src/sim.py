@@ -1,3 +1,4 @@
+import math
 import sys
 
 if sys.implementation.name == "micropython":
@@ -65,11 +66,19 @@ def simulate_profile(
         # 3) Clamp output to [0..1] for PWM
         pwm = clamp_pwm(output)
 
-        # 4) Compute net heating/cooling for one timestep
+        # 4) Integrate constant PWM heating and exponential cooling exactly
+        # over one timestep. Euler integration can overshoot below ambient
+        # when dt * cooling_coeff is large.
         heating = pwm * model.max_heating_rate
-        cooling = model.cooling_coeff * (temperature - model.ambient)
-
-        temperature += dt * (heating - cooling)
+        if model.cooling_coeff:
+            decay = math.exp(-model.cooling_coeff * dt)
+            temperature = (
+                model.ambient
+                + (temperature - model.ambient) * decay
+                + heating * (1.0 - decay) / model.cooling_coeff
+            )
+        else:
+            temperature += dt * heating
 
         # Store data
         times.append(current_time)
