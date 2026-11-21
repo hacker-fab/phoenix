@@ -72,10 +72,12 @@ def simulate_profile(
         heating = pwm * model.max_heating_rate
         if model.cooling_coeff:
             decay = math.exp(-model.cooling_coeff * dt)
+            # expm1 avoids cancellation when cooling_coeff * dt is tiny.
+            heating_integral = -math.expm1(-model.cooling_coeff * dt) / model.cooling_coeff
             temperature = (
                 model.ambient
                 + (temperature - model.ambient) * decay
-                + heating * (1.0 - decay) / model.cooling_coeff
+                + heating * heating_integral
             )
         else:
             temperature += dt * heating

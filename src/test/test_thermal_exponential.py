@@ -29,6 +29,15 @@ class TestExponentialCooling(unittest.TestCase):
         self.assertEqual(pwm_values, [1.0])
         self.assertEqual(temperatures, [45.0])
 
+    def test_tiny_positive_cooling_preserves_heating(self):
+        # exp(-2e-18) rounds to 1.0; 1 - exp(...) loses all heating.
+        model = ThermalModel(ambient=25.0, max_heating_rate=10.0, cooling_coeff=1e-18)
+        _, temperatures, _, pwm_values, _ = simulate_profile(
+            [(0.0, 500.0)], model, sim_time=2.0, dt=2.0
+        )
+        self.assertEqual(pwm_values, [1.0])
+        self.assertAlmostEqual(temperatures[0], 45.0, places=10)
+
     def test_no_heating_stays_at_ambient(self):
         model = ThermalModel(ambient=25.0, max_heating_rate=0.0, cooling_coeff=0.01)
         _, temperatures, _, pwm_values, _ = simulate_profile(
